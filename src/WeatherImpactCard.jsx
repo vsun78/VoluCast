@@ -6,9 +6,9 @@ function Sun({ size = 28 }) {
     <svg width={size} height={size} viewBox="0 0 24 24" aria-hidden>
       <circle cx="12" cy="12" r="5" fill="#f6c84c" />
       <g stroke="#f6c84c" strokeWidth="2" strokeLinecap="round">
-        <path d="M12 2v2"/><path d="M12 20v2"/><path d="M2 12h2"/><path d="M20 12h2"/>
-        <path d="M4.2 4.2l1.5 1.5"/><path d="M18.3 18.3l1.5 1.5"/>
-        <path d="M4.2 19.8l1.5-1.5"/><path d="M18.3 5.7l1.5-1.5"/>
+        <path d="M12 2v2" /><path d="M12 20v2" /><path d="M2 12h2" /><path d="M20 12h2" />
+        <path d="M4.2 4.2l1.5 1.5" /><path d="M18.3 18.3l1.5 1.5" />
+        <path d="M4.2 19.8l1.5-1.5" /><path d="M18.3 5.7l1.5-1.5" />
       </g>
     </svg>
   );
@@ -18,7 +18,10 @@ function Partly({ size = 28 }) {
     <svg width={size} height={size} viewBox="0 0 24 24" aria-hidden>
       <Sun size={18} />
       <g transform="translate(6,6)">
-        <path d="M4 10h7a3 3 0 0 0 0-6 4 4 0 0 0-7-.8A3.5 3.5 0 0 0 4 10Z" fill="#cfd6e3"/>
+        <path
+          d="M4 10h7a3 3 0 0 0 0-6 4 4 0 0 0-7-.8A3.5 3.5 0 0 0 4 10Z"
+          fill="#cfd6e3"
+        />
       </g>
     </svg>
   );
@@ -26,53 +29,78 @@ function Partly({ size = 28 }) {
 function LightRain({ size = 28 }) {
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" aria-hidden>
-      <path d="M6 12h9a3.5 3.5 0 0 0 0-7 5.5 5.5 0 0 0-10.3 1.8A3.8 3.8 0 0 0 6 12Z" fill="#cfd6e3"/>
+      <path
+        d="M6 12h9a3.5 3.5 0 0 0 0-7 5.5 5.5 0 0 0-10.3 1.8A3.8 3.8 0 0 0 6 12Z"
+        fill="#cfd6e3"
+      />
       <g stroke="#65aaf7" strokeWidth="2" strokeLinecap="round">
-        <path d="M8 16l-1 2"/><path d="M12 16l-1 2"/><path d="M16 16l-1 2"/>
+        <path d="M8 16l-1 2" /><path d="M12 16l-1 2" /><path d="M16 16l-1 2" />
       </g>
     </svg>
   );
 }
-const ICONS = { "Sunny": Sun, "Partly Cloudy": Partly, "Light Rain": LightRain };
+const ICONS = {
+  Sunny: Sun,
+  "Partly Cloudy": Partly,
+  "Light Rain": LightRain,
+};
 
-// --- Helpers (map provider text → our buckets)
+// --- Helpers (provider text → our buckets)
 function normalizeCondition(desc = "", cloudsPct = 0) {
-  const s = desc.toLowerCase();
-  if (s.includes("snow")) return "Snow";
-  if (s.includes("thunder")) return "Rain";
-  if (s.includes("drizzle") || s.includes("light rain") || s.includes("patchy rain")) return "Light Rain";
-  if (s.includes("rain")) return "Rain";
+  const s = (desc || "").toLowerCase();
+  if (s.includes("haze") || s.includes("mist") || s.includes("fog") || s.includes("smoke"))
+    return "Partly Cloudy"; // closest icon we have
+  if (s.includes("thunder")) return "Light Rain";
+  if (s.includes("drizzle") || s.includes("patchy rain") || s.includes("light rain"))
+    return "Light Rain";
+  if (s.includes("rain")) return "Light Rain";
+  if (s.includes("snow") || s.includes("sleet")) return "Light Rain"; // reuse drop icon
+  if (s.includes("overcast") || s.includes("cloud")) return "Partly Cloudy";
   if (s.includes("clear") || s.includes("sunny")) return "Sunny";
-  if (s.includes("cloud")) return "Partly Cloudy";
+
+  // fallback by clouds
   if (cloudsPct < 15) return "Sunny";
   if (cloudsPct < 70) return "Partly Cloudy";
   return "Partly Cloudy";
 }
-function impactFromCondition(cond) {
-  switch (cond) {
-    case "Light Rain": return -12;
-    case "Rain": return -18;
-    case "Snow": return -22;
-    case "Partly Cloudy": return -4;
-    case "Sunny": return 0;
-    default: return -6;
-  }
+
+function isWeekendYMD(iso) {
+  const [y, m, d] = iso.split("-").map(Number);
+  const day = new Date(y, m - 1, d).getDay(); // 0=Sun ... 6=Sat
+  return day === 0 || day === 6;
 }
+
+function formatWeekday(iso, tzId) {
+  const dt = new Date(`${iso}T12:00:00`); // midday guard
+  return new Intl.DateTimeFormat("en-CA", { weekday: "short", timeZone: tzId }).format(dt);
+}
+
 // Fallback mock
-function fakeWeather() {
-  const today = new Date();
-  const days = Array.from({ length: 3 }, (_, i) => {
-    const d = new Date(today); d.setDate(today.getDate() + i);
-    return d.toLocaleDateString("en-CA", { weekday: "short" });
-  });
+function fakeWeather(tzId = "UTC") {
+  const base = new Date();
+  function nextBiz(shift) {
+    // returns ISO yyyy-mm-dd for next business day after "shift" days
+    let d = new Date(base);
+    d.setDate(d.getDate() + shift);
+    while (d.getDay() === 0 || d.getDay() === 6) d.setDate(d.getDate() + 1);
+    const yyyy = d.getFullYear();
+    const mm = String(d.getMonth() + 1).padStart(2, "0");
+    const dd = String(d.getDate()).padStart(2, "0");
+    return `${yyyy}-${mm}-${dd}`;
+  }
+  const d0 = nextBiz(0);
+  const d1 = nextBiz(1);
+  const d2 = nextBiz(2);
+
   return {
-    condition: "Light Rain",
-    impactNowPct: -12,
-    impactDeltaPct: +2,
+    condition: "Sunny",
+    currentC: 25,
+    todayHi: 28,
+    todayLo: 18,
     forecast: [
-      { day: days[0], icon: "Partly Cloudy", hi: 17, lo: 6 },
-      { day: days[1], icon: "Partly Cloudy", hi: 13, lo: 6 },
-      { day: days[2], icon: "Sunny",          hi: 12, lo: 4 },
+      { day: formatWeekday(d0, tzId), icon: "Sunny", hi: 28, lo: 18 },
+      { day: formatWeekday(d1, tzId), icon: "Partly Cloudy", hi: 27, lo: 17 },
+      { day: formatWeekday(d2, tzId), icon: "Light Rain", hi: 24, lo: 16 },
     ],
   };
 }
@@ -89,10 +117,10 @@ export default function WeatherImpactCard({ lat = 43.67, lng = -79.42 }) {
       try {
         if (!key) throw new Error("Missing REACT_APP_WEATHER_API_KEY");
 
-        // WeatherAPI: current + 3-day forecast (metric by default)
+        // Ask for up to 7 days so we can skip weekends
         const url =
           `https://api.weatherapi.com/v1/forecast.json?key=${encodeURIComponent(key)}` +
-          `&q=${lat},${lng}&days=3&aqi=no&alerts=no`;
+          `&q=${lat},${lng}&days=7&aqi=no&alerts=no`;
 
         const res = await fetch(url);
         if (!res.ok) {
@@ -101,32 +129,58 @@ export default function WeatherImpactCard({ lat = 43.67, lng = -79.42 }) {
         }
         const json = await res.json();
 
-        // Current condition
+        const tzId = json.location?.tz_id || "UTC";
+
+        // Current
         const curr = json.current || {};
         const conditionText = curr.condition?.text || "";
-        const cloudsApprox = typeof curr.cloud === "number" ? curr.cloud : (conditionText.toLowerCase().includes("cloud") ? 50 : 0);
+        const cloudsApprox = typeof curr.cloud === "number"
+          ? curr.cloud
+          : conditionText.toLowerCase().includes("cloud") ? 50 : 0;
         const condition = normalizeCondition(conditionText, cloudsApprox);
-        const impactNowPct = impactFromCondition(condition);
+        const currentC = Math.round(curr.temp_c ?? 0);
 
-        // Forecast (today + next 2)
-        const days = (json.forecast?.forecastday || []).slice(0, 3).map(fd => {
-          const day = new Date(fd.date).toLocaleDateString("en-CA", { weekday: "short" });
-          const iconText = fd.day?.condition?.text || "";
-          const cloudsGuess = iconText.toLowerCase().includes("cloud") ? 50 : 0;
-          const icon = normalizeCondition(iconText, cloudsGuess);
-          return {
-            day,
+        // Build business-day sequence: today + next 2 weekdays (skip Sat/Sun)
+        const daysRaw = (json.forecast?.forecastday || []);
+        const biz = [];
+        for (const fd of daysRaw) {
+          if (isWeekendYMD(fd.date)) continue;      // skip weekends
+          // ensure we start at today-or-later in provider calendar
+          // WeatherAPI already starts at "today" for the location
+          const txt = fd.day?.condition?.text || "";
+          let icon = normalizeCondition(txt, txt.toLowerCase().includes("cloud") ? 50 : 0);
+
+          // Prefer provider probabilities for rain/snow when deciding icon
+          const chanceRain = Number(fd.day?.daily_chance_of_rain ?? 0);
+          const chanceSnow = Number(fd.day?.daily_chance_of_snow ?? 0);
+          if (chanceSnow >= 30) icon = "Light Rain";
+          else if (chanceRain >= 60) icon = "Light Rain";
+
+          biz.push({
+            dateISO: fd.date,
+            day: formatWeekday(fd.date, tzId),
             icon,
             hi: Math.round(fd.day?.maxtemp_c ?? 0),
             lo: Math.round(fd.day?.mintemp_c ?? 0),
-          };
-        });
+          });
 
-        const tomorrowIcon = days[1]?.icon || condition;
-        const impactTomorrow = impactFromCondition(tomorrowIcon);
-        const impactDeltaPct = impactTomorrow - impactNowPct;
+          if (biz.length === 3) break;
+        }
 
-        if (!cancelled) setData({ condition, impactNowPct, impactDeltaPct, forecast: days });
+        // If today is weekend, the first entry might be Monday → okay.
+        // todayHi/Lo for the first business day in the list
+        const todayHi = biz[0]?.hi ?? Math.round(json.forecast?.forecastday?.[0]?.day?.maxtemp_c ?? 0);
+        const todayLo = biz[0]?.lo ?? Math.round(json.forecast?.forecastday?.[0]?.day?.mintemp_c ?? 0);
+
+        if (!cancelled) {
+          setData({
+            condition,
+            currentC,
+            todayHi,
+            todayLo,
+            forecast: biz.slice(0, 3),
+          });
+        }
       } catch (e) {
         console.warn("[WeatherImpact] Using fake data:", e?.message || e);
         if (!cancelled) setData(fakeWeather());
@@ -134,29 +188,33 @@ export default function WeatherImpactCard({ lat = 43.67, lng = -79.42 }) {
         if (!cancelled) setLoading(false);
       }
     })();
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   }, [lat, lng]);
 
-  const Icon = useMemo(() => ICONS[data?.condition || "Light Rain"] || LightRain, [data]);
+  const Icon = useMemo(
+    () => ICONS[data?.condition || "Sunny"] || Sun,
+    [data]
+  );
 
-  if (loading || !data) return <div className="bento-card weather-impact-card">Loading weather…</div>;
-
-  const sign = data.impactNowPct > 0 ? "+" : "";
-  const expSign = data.impactDeltaPct > 0 ? "+" : "";
-  const expUp = data.impactDeltaPct > 0;
+  if (loading || !data) {
+    return <div className="bento-card weather-impact-card">Loading weather…</div>;
+  }
 
   return (
     <div className="bento-card weather-impact-card">
-      <div className="wi-header">Weather Impact</div>
+      <div className="wi-header">Weather</div>
 
       <div className="wi-top">
         <div className="wi-icon"><Icon /></div>
         <div className="wi-info">
           <div className="wi-cond">{data.condition}</div>
-          <div className="wi-impact">{sign}{data.impactNowPct}%</div>
-          <div className={`wi-pill ${expUp ? "up" : "down"}`}>
-            <span className="arrow">{expUp ? "▲" : "▼"}</span>
-            {expSign}{Math.abs(data.impactDeltaPct)}%&nbsp;EXPECTED
+          {/* Big number is CURRENT temperature in °C */}
+          <div className="wi-impact">{data.currentC}°</div>
+          {/* Show today's High/Low in the pill */}
+          <div className="wi-pill">
+            H: {data.todayHi}° &nbsp;·&nbsp; L: {data.todayLo}°
           </div>
         </div>
       </div>

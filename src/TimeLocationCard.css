@@ -1,0 +1,56 @@
+/* src/components/TimeLocationCard.css */
+.tl-card {
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 6px 16px rgba(0,0,0,.06);
+  padding: 16px;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.tl-header {
+  font-weight: 700;
+  font-size: 18px;
+  color: #111827;
+}
+
+.tl-body {
+  display: grid;
+  grid-template-columns: 1fr 1.4fr;
+  gap: 12px;
+  align-items: center;
+}
+
+.tl-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: #111827;
+}
+
+.tl-note-title {
+  font-weight: 600;
+}
+
+.tl-note-sub {
+  font-size: 12px;
+  opacity: .7;
+  margin-top: 2px;
+}
+
+.tl-map {
+  width: 100%;
+  height: 160px;            /* adjust to fit your tile size */
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.tl-map iframe {
+  width: 100%;
+  height: 100%;
+  display: block;
+  border: 0;
+  border-radius: 12px;
+}
