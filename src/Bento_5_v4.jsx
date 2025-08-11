@@ -2,7 +2,9 @@ import React from "react";
 import "./Bento.css";
 import Chart from "./Chart";
 import WeatherImpactCard from "./WeatherImpactCard";
-import StarBorder from "./StarBorder"; // import the glow border
+import StarBorder from "./StarBorder"; // keep colors as-is
+import TimeLocationCard from "./TimeLocationCard";
+import "./TimeLocationCard.css";                   
 
 const cells = [1, 2, 3, 4, 5];
 
@@ -17,19 +19,19 @@ export default function Bento_5_v4() {
 
           return (
             <div key={n} className={`bento-cell-wrapper ${extra}`}>
-              {/* Wrap every card with StarBorder */}
               <StarBorder
                 as="div"
-                color={i % 2 === 0 ? "cyan" : "violet"} // alternate colors
-                speed= "6s"
+                color={i % 2 === 0 ? "cyan" : "violet"} 
+                speed="6s"
                 thickness={3}
-
               >
                 <div className="bento-cell">
                   {i === 0 ? (
                     <Chart />
                   ) : i === 3 ? (
                     <WeatherImpactCard />
+                  ) : i === 2 ? (
+                    <TimeLocationCard />  
                   ) : (
                     <Cell i={i + 1} />
                   )}

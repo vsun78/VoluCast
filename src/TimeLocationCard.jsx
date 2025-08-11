@@ -1,46 +1,48 @@
-// src/components/TimeLocationCard.jsx
-import React from "react";
+import React, { useEffect, useState } from "react";
 
-function ClockIcon({ size = 28 }) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 24 24" aria-hidden>
-      <circle cx="12" cy="12" r="9" fill="none" stroke="#111827" strokeWidth="1.5"/>
-      <path d="M12 7v5l3 2" stroke="#111827" strokeWidth="1.5" strokeLinecap="round" fill="none"/>
-    </svg>
-  );
-}
+export default function TimeLocationCard() {
+  const [time, setTime] = useState("");
 
-export default function TimeLocationCard({
-  title = "Time & Location Context",
-  city = "Toronto, Canada",
-  lat = 43.6532,
-  lng = -79.3832,
-  note = "Peak work hours"
-}) {
-  const src = `https://www.google.com/maps?q=${lat},${lng}&z=12&output=embed`;
+  // Update current time every second
+  useEffect(() => {
+    const updateTime = () => {
+      const now = new Date();
+      setTime(
+        now.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" })
+      );
+    };
+    updateTime();
+    const interval = setInterval(updateTime, 1000);
+    return () => clearInterval(interval);
+  }, []);
+
+  const lat = 43.6532;
+  const lng = -79.3832;
+  const src = `https://www.google.com/maps?q=${lat},${lng}&z=13&output=embed`;
+
   return (
     <div className="tl-card">
-      <div className="tl-header">{title}</div>
+      {/* Header */}
+      <div className="tl-header">
+        <div className="tl-title">Time & Location</div>
+        <div className="tl-time">{time}</div>
+      </div>
 
-      <div className="tl-body">
-        <div className="tl-left">
-          <ClockIcon />
-          <div className="tl-note">
-            <div className="tl-note-title">{note}</div>
-            <div className="tl-note-sub">{city}</div>
-          </div>
-        </div>
-
-        <div className="tl-map">
-          <iframe
-            title={`map-${city}`}
-            src={src}
-            style={{ border: 0 }}
-            loading="lazy"
-            referrerPolicy="no-referrer-when-downgrade"
-            allowFullScreen
-          />
-        </div>
+      {/* Map fills most of the card */}
+      <div className="tl-map">
+        <iframe
+          title="map-toronto"
+          src={src}
+          loading="lazy"
+          style={{
+            border: 0,
+            width: "100%",
+            height: "100%",
+            borderRadius: "12px"
+          }}
+          referrerPolicy="no-referrer-when-downgrade"
+          allowFullScreen
+        />
       </div>
     </div>
   );
