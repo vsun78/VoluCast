@@ -1,41 +1,38 @@
-// src/Chart.jsx
-import React, { useEffect, useRef, useState } from "react";
-import "./Chart.css";
+import React from "react";
+import { BarChart, Bar, ResponsiveContainer } from "recharts";
 
-export default function Chart() {
-  const lineRef = useRef(null);
-  const [len, setLen] = useState(0);
+// Keep or replace with live data later
+const demo = [
+  { period: "2025-06-06", WTI: 77.2 },
+  { period: "2025-06-13", WTI: 78.5 },
+  { period: "2025-06-20", WTI: 76.9 },
+  { period: "2025-06-27", WTI: 79.4 },
+  { period: "2025-07-04", WTI: 80.1 },
+  { period: "2025-07-11", WTI: 81.6 },
+  { period: "2025-07-18", WTI: 82.3 },
+  { period: "2025-07-25", WTI: 83.0 },
+  { period: "2025-08-01", WTI: 81.9 },
+  { period: "2025-08-08", WTI: 82.7 },
+  { period: "2025-08-15", WTI: 83.4 },
+  { period: "2025-08-22", WTI: 84.0 }
+];
 
-  useEffect(() => {
-    if (lineRef.current) {
-      const L = lineRef.current.getTotalLength();
-      setLen(L);
-    }
-  }, []);
+export default function OilBarMicro({ height = 90 }) {
+  // show the last 8 points to reduce crowding
+  const data = demo.slice(-8);
 
   return (
-    <div className="chart-card">
-      <div className="chart-overlay">
-        <div className="chart-label">This Month:</div>
-        <div className="chart-value">+300%</div>
-      </div>
-
-      <div className="chart-bg">
-        <svg viewBox="0 0 653 465" className="chart-svg" preserveAspectRatio="none">
-          {/* Area (fades in) */}
-          <path
-            className="chart-area"
-            d="M0 460.694c6.6-3.13 19.8-11.272 33-15.654s19.8-2.814 33-6.257 19.8.365 33-10.955 19.8-32.07 33-45.643c13.2-13.572 19.8-16.08 33-22.22s19.8-5.647 33-8.48c13.2-2.832 19.8 5.901 33-5.68 13.2-11.582 19.8-37.759 33-52.226 13.2-14.468 19.8-28.263 33-20.112 13.2 8.15 19.8 59.038 33 60.863 13.2 1.824 19.8-43.269 33-51.741s19.8 24.488 33 9.38c13.2-15.11 19.8-81.825 33-84.923s19.8 54.76 33 69.432 19.8 34.912 33 3.931 19.8-148.752 33-158.837c13.2-10.086 19.8 111.943 33 108.409 13.2-3.535 19.8-97.635 33-126.082s19.8-7.562 33-16.152 26.4-21.438 33-26.798L653 465H0Z"
-          />
-          {/* Line (draws itself) */}
-          <path
-            ref={lineRef}
-            style={{ "--len": len }}
-            className="chart-line"
-            d="M0 460.694c6.6-3.13 19.8-11.272 33-15.654s19.8-2.814 33-6.257 19.8.365 33-10.955 19.8-32.07 33-45.643c13.2-13.572 19.8-16.08 33-22.22s19.8-5.647 33-8.48c13.2-2.832 19.8 5.901 33-5.68 13.2-11.582 19.8-37.759 33-52.226 13.2-14.468 19.8-28.263 33-20.112 13.2 8.15 19.8 59.038 33 60.863 13.2 1.824 19.8-43.269 33-51.741s19.8 24.488 33 9.38c13.2-15.11 19.8-81.825 33-84.923s19.8 54.76 33 69.432 19.8 34.912 33 3.931 19.8-148.752 33-158.837c13.2-10.086 19.8 111.943 33 108.409 13.2-3.535 19.8-97.635 33-126.082s19.8-7.562 33-16.152 26.4-21.438 33-26.798"
-          />
-        </svg>
-      </div>
+    <div style={{ width: "100%", height }}>
+      <ResponsiveContainer width="100%" height="100%">
+        <BarChart
+          data={data}
+          margin={{ top: 2, right: 2, left: 2, bottom: 0 }}
+          barCategoryGap="70%"   // lots of spacing
+        >
+          {/* no axes, no legend, no tooltip */}
+          <Bar dataKey="WTI" fill="#0ea5e9" barSize={4} radius={[2, 2, 0, 0]} />
+        </BarChart>
+      </ResponsiveContainer>
     </div>
   );
 }
