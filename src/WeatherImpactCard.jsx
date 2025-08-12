@@ -49,16 +49,15 @@ const ICONS = {
 function normalizeCondition(desc = "", cloudsPct = 0) {
   const s = (desc || "").toLowerCase();
   if (s.includes("haze") || s.includes("mist") || s.includes("fog") || s.includes("smoke"))
-    return "Partly Cloudy"; // closest icon we have
+    return "Partly Cloudy";
   if (s.includes("thunder")) return "Light Rain";
   if (s.includes("drizzle") || s.includes("patchy rain") || s.includes("light rain"))
     return "Light Rain";
   if (s.includes("rain")) return "Light Rain";
-  if (s.includes("snow") || s.includes("sleet")) return "Light Rain"; // reuse drop icon
+  if (s.includes("snow") || s.includes("sleet")) return "Light Rain";
   if (s.includes("overcast") || s.includes("cloud")) return "Partly Cloudy";
   if (s.includes("clear") || s.includes("sunny")) return "Sunny";
 
-  // fallback by clouds
   if (cloudsPct < 15) return "Sunny";
   if (cloudsPct < 70) return "Partly Cloudy";
   return "Partly Cloudy";
@@ -71,26 +70,27 @@ function isWeekendYMD(iso) {
 }
 
 function formatWeekday(iso, tzId) {
-  const dt = new Date(`${iso}T12:00:00`); // midday guard
+  const dt = new Date(`${iso}T12:00:00`);
   return new Intl.DateTimeFormat("en-CA", { weekday: "short", timeZone: tzId }).format(dt);
 }
 
 // Fallback mock
 function fakeWeather(tzId = "UTC") {
   const base = new Date();
-  function nextBiz(shift) {
-    // returns ISO yyyy-mm-dd for next business day after "shift" days
+  function nextBiz(startShift) {
     let d = new Date(base);
-    d.setDate(d.getDate() + shift);
+    d.setDate(d.getDate() + startShift);
+    // move to tomorrow first
+    d.setDate(d.getDate() + 1);
     while (d.getDay() === 0 || d.getDay() === 6) d.setDate(d.getDate() + 1);
     const yyyy = d.getFullYear();
     const mm = String(d.getMonth() + 1).padStart(2, "0");
     const dd = String(d.getDate()).padStart(2, "0");
     return `${yyyy}-${mm}-${dd}`;
   }
-  const d0 = nextBiz(0);
-  const d1 = nextBiz(1);
-  const d2 = nextBiz(2);
+  const d1 = nextBiz(0);
+  const d2 = nextBiz(1);
+  const d3 = nextBiz(2);
 
   return {
     condition: "Sunny",
@@ -98,9 +98,9 @@ function fakeWeather(tzId = "UTC") {
     todayHi: 28,
     todayLo: 18,
     forecast: [
-      { day: formatWeekday(d0, tzId), icon: "Sunny", hi: 28, lo: 18 },
-      { day: formatWeekday(d1, tzId), icon: "Partly Cloudy", hi: 27, lo: 17 },
-      { day: formatWeekday(d2, tzId), icon: "Light Rain", hi: 24, lo: 16 },
+      { day: formatWeekday(d1, tzId), icon: "Sunny", hi: 28, lo: 18 },
+      { day: formatWeekday(d2, tzId), icon: "Partly Cloudy", hi: 27, lo: 17 },
+      { day: formatWeekday(d3, tzId), icon: "Light Rain", hi: 24, lo: 16 },
     ],
   };
 }
@@ -131,26 +131,53 @@ export default function WeatherImpactCard({ lat = 43.67, lng = -79.42 }) {
 
         const tzId = json.location?.tz_id || "UTC";
 
+        // Determine "today" in the provider's local time zone
+        const localDateStr =
+          (json.location?.localtime || "").split(" ")[0] ||
+          (json.forecast?.forecastday?.[0]?.date ?? null);
+
         // Current
         const curr = json.current || {};
         const conditionText = curr.condition?.text || "";
-        const cloudsApprox = typeof curr.cloud === "number"
-          ? curr.cloud
-          : conditionText.toLowerCase().includes("cloud") ? 50 : 0;
+        const cloudsApprox =
+          typeof curr.cloud === "number"
+            ? curr.cloud
+            : conditionText.toLowerCase().includes("cloud")
+            ? 50
+            : 0;
         const condition = normalizeCondition(conditionText, cloudsApprox);
         const currentC = Math.round(curr.temp_c ?? 0);
 
-        // Build business-day sequence: today + next 2 weekdays (skip Sat/Sun)
-        const daysRaw = (json.forecast?.forecastday || []);
-        const biz = [];
-        for (const fd of daysRaw) {
-          if (isWeekendYMD(fd.date)) continue;      // skip weekends
-          // ensure we start at today-or-later in provider calendar
-          // WeatherAPI already starts at "today" for the location
-          const txt = fd.day?.condition?.text || "";
-          let icon = normalizeCondition(txt, txt.toLowerCase().includes("cloud") ? 50 : 0);
+        // Today's actual hi/lo from provider's first day
+        const todayObj = (json.forecast?.forecastday || []).find(
+          (fd) => fd?.date === localDateStr
+        );
+        const todayHi = Math.round(todayObj?.day?.maxtemp_c ?? 0);
+        const todayLo = Math.round(todayObj?.day?.mintemp_c ?? 0);
 
-          // Prefer provider probabilities for rain/snow when deciding icon
+        // Build business-day sequence: **start from TOMORROW**, skip Sat/Sun
+        const daysRaw = json.forecast?.forecastday || [];
+        const biz = [];
+        let passedToday = false;
+
+        for (const fd of daysRaw) {
+          if (!passedToday) {
+            // advance until we pass "today"
+            if (fd.date === localDateStr) {
+              passedToday = true; // next iterations will be tomorrow+
+            }
+            continue;
+          }
+
+          if (isWeekendYMD(fd.date)) continue; // skip weekends
+
+          const txt = fd.day?.condition?.text || "";
+          let icon = normalizeCondition(
+            txt,
+            txt.toLowerCase().includes("cloud") ? 50 : 0
+          );
+
+          // prefer precip probabilities when choosing icon
           const chanceRain = Number(fd.day?.daily_chance_of_rain ?? 0);
           const chanceSnow = Number(fd.day?.daily_chance_of_snow ?? 0);
           if (chanceSnow >= 30) icon = "Light Rain";
@@ -167,18 +194,13 @@ export default function WeatherImpactCard({ lat = 43.67, lng = -79.42 }) {
           if (biz.length === 3) break;
         }
 
-        // If today is weekend, the first entry might be Monday → okay.
-        // todayHi/Lo for the first business day in the list
-        const todayHi = biz[0]?.hi ?? Math.round(json.forecast?.forecastday?.[0]?.day?.maxtemp_c ?? 0);
-        const todayLo = biz[0]?.lo ?? Math.round(json.forecast?.forecastday?.[0]?.day?.mintemp_c ?? 0);
-
         if (!cancelled) {
           setData({
             condition,
             currentC,
             todayHi,
             todayLo,
-            forecast: biz.slice(0, 3),
+            forecast: biz, // tomorrow + next 2 business days
           });
         }
       } catch (e) {
@@ -193,10 +215,7 @@ export default function WeatherImpactCard({ lat = 43.67, lng = -79.42 }) {
     };
   }, [lat, lng]);
 
-  const Icon = useMemo(
-    () => ICONS[data?.condition || "Sunny"] || Sun,
-    [data]
-  );
+  const Icon = useMemo(() => ICONS[data?.condition || "Sunny"] || Sun, [data]);
 
   if (loading || !data) {
     return <div className="bento-card weather-impact-card">Loading weather…</div>;
