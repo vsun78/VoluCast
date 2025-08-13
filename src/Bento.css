@@ -159,3 +159,73 @@
 .weather-impact-card .wi-day .d-icon  { display: grid; place-items: center; }
 .weather-impact-card .d-temp-hi { font-weight: 700; }
 .weather-impact-card .d-temp-lo { color: #5a6b84; font-size: 12px; }
+
+/* --- view button (top-right of each card) --- */
+.bento-cell-wrapper { position: relative; }
+
+.view-btn {
+  position: absolute;
+  top:8px;         /* moved slightly down to align inside */
+  right: 25px;       /* moved further left to avoid spilling out */
+  padding: 3px 8px;
+  background: rgba(173, 216, 230, 0.7); /* light blue/cyan transparent */
+  color: #0a2a33; /* dark teal text for contrast */
+  border: none;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  z-index: 2;
+  backdrop-filter: blur(4px);
+  transition: background 0.15s ease, transform 0.15s ease;
+}
+
+.view-btn:hover {
+  background: rgba(173, 216, 230, 0.85);
+  transform: translateY(-1px);
+}
+
+
+
+/* Modal */
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 999;
+}
+.modal-sheet {
+  background: #fff;
+  border-radius: 12px;
+  width: min(800px, 90vw);
+  max-height: 80vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.modal-header {
+  padding: 12px 16px;
+  background: #f5f6f8;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.modal-close {
+  background: none;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+}
+.modal-body {
+  flex: 1;
+  padding: 20px;
+}
+
+.view-icon {
+  width: 14px;  
+  height: 12px;
+  display: block;
+}
