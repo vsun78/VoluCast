@@ -27,7 +27,7 @@ export default function VideoText({
   fontFamily = "Inter, ui-sans-serif",
 
   // NEW: crop/zoom and focal point for the video inside the letters
-  videoScale = 1.2,              // 1 = no zoom; >1 zooms in (crops letterbox bars)
+  videoScale = 1.2,              // 1 = no zoom; >1 zooms in (crops letterbox bars) // i think this is overrided
   videoPosition = "50% 50%",     // CSS object-position (e.g., "50% 45%")
 
   as: Component = "div",
