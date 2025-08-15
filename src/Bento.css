@@ -229,3 +229,38 @@
   height: 12px;
   display: block;
 }
+
+/* ===== Modal animations ===== */
+@keyframes backdropIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+@keyframes backdropOut {
+  from { opacity: 1; }
+  to   { opacity: 0; }
+}
+
+@keyframes sheetIn {
+  0%   { transform: translateY(18px) scale(.98); opacity: 0; }
+  100% { transform: translateY(0)    scale(1);   opacity: 1; }
+}
+@keyframes sheetOut {
+  0%   { transform: translateY(0)    scale(1);   opacity: 1; }
+  100% { transform: translateY(18px) scale(.98); opacity: 0; }
+}
+
+/* Enter by default */
+.modal-backdrop {
+  animation: backdropIn .22s ease forwards;
+}
+.modal-sheet {
+  animation: sheetIn .25s cubic-bezier(.2,.7,.2,1) forwards;
+}
+
+/* Exit when .closing is added */
+.modal-backdrop.closing {
+  animation: backdropOut .22s ease forwards;
+}
+.modal-sheet.closing {
+  animation: sheetOut .25s cubic-bezier(.2,.7,.2,1) forwards;
+}
