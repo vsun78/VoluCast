@@ -1,17 +1,15 @@
 // src/HeaderHero.jsx
 "use client";
-
 import React from "react";
 import VideoText from "./Components/video-text";
 
 export default function HeaderHero() {
   return (
-    <header className="w-full bg-[#d1d5db]">
+    <header className="w-full" style={{ background: "transparent" }}>
       <div className="mx-auto w-full max-w-[1400px] px-4 pt-1">
-        {/* Force a very small header height */}
         <div
-          style={{ height: 300, minHeight: 300 }}          // <- inline override
-          className="relative !h-[36px] rounded-2xl overflow-hidden ring-1 ring-black/5 bg-[#f5f7fa]"
+          style={{ height: 300, minHeight: 300, background: "transparent" }}
+          className="relative rounded-2xl overflow-hidden ring-1 ring-black/5"
         >
           <VideoText
             src="/VoluCastLoop.mp4"
