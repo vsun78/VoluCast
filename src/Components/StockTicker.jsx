@@ -1,7 +1,7 @@
 "use client";
 import React, { useEffect, useMemo, useState } from "react";
 
-/* --- Demo TSX-ish data; swap to your API later --- */
+/* --- Demo TSX-ish data --- */
 const DEMO = [
   { symbol: "RY.TO",  price: 148.23, changePct: +0.82 },
   { symbol: "TD.TO",  price: 87.11,  changePct: -0.34 },
@@ -16,15 +16,51 @@ const DEMO = [
 ];
 
 export default function StockTicker({
-  speedSec = 28,              // lower = faster
-  pollMs = 60_000,            // only used if useLive=true
+  speedSec = 28,           // marquee speed
+  pollMs = 60_000,         // for live mode
   useLive = false,
+  showOffset = 240,        // how close to the bottom before showing (px)
   symbols = DEMO.map(d => d.symbol).join(","),
 }) {
   const [rows, setRows] = useState(DEMO);
   const [isDemo, setIsDemo] = useState(true);
+  const [visible, setVisible] = useState(false);
 
-  // Optional live fetch
+  // --- Show/hide on scroll near bottom ---
+  useEffect(() => {
+    const computeShow = () => {
+      const doc = document.documentElement;
+      const full = Math.max(
+        doc.scrollHeight,
+        document.body.scrollHeight,
+        doc.offsetHeight
+      );
+      const viewport = window.innerHeight;
+      const scrolled = window.pageYOffset ?? doc.scrollTop;
+      return scrolled + viewport >= full - showOffset;
+    };
+
+    let ticking = false;
+    const onScroll = () => {
+      if (ticking) return;
+      ticking = true;
+      requestAnimationFrame(() => {
+        setVisible(computeShow());
+        ticking = false;
+      });
+    };
+
+    // initial
+    setVisible(computeShow());
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", onScroll);
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", onScroll);
+    };
+  }, [showOffset]);
+
+  // --- Optional live fetch ---
   useEffect(() => {
     if (!useLive) return;
     const load = async () => {
@@ -51,11 +87,13 @@ export default function StockTicker({
   // --- Inline styles (no Tailwind needed) ---
   const wrap = {
     position: "fixed", left: 16, right: 16, bottom: 16, zIndex: 9999,
+    // fade in/out styles via CSS classes below
   };
   const shell = {
     borderRadius: 16, background: "#111", color: "white",
     boxShadow: "0 12px 35px rgba(0,0,0,.35)", overflow: "hidden",
     border: "1px solid rgba(255,255,255,.08)",
+    pointerEvents: visible ? "auto" : "none",
   };
   const viewport = { position: "relative", overflow: "hidden" };
   const fadeL = {
@@ -88,27 +126,43 @@ export default function StockTicker({
   };
 
   return (
-    <div style={wrap}>
+    <div style={wrap} className={`ticker-appear ${visible ? "in" : "out"}`}>
       <div style={shell}>
         <div style={viewport}>
           <div style={fadeL} />
           <div style={fadeR} />
-
           <div style={trackStyle}>
             {track.map((row, i) => (
               <Item key={`${row.symbol}-${i}`} row={row} />
             ))}
           </div>
         </div>
-
-        {isDemo && <div style={footer}>demo data shown — wire /api/stocks for live quotes</div>}
       </div>
 
-      {/* keyframes (plain <style>, works in CRA, Vite, Next, etc.) */}
+      {/* keyframes + transition classes */}
       <style>{`
         @keyframes tickerSlide {
           0%   { transform: translateX(0%); }
           100% { transform: translateX(-50%); }
+        }
+        .ticker-appear {
+          opacity: 0;
+          transform: translateY(16px) scale(.98);
+          visibility: hidden;
+          transition:
+            opacity .35s ease,
+            transform .35s ease,
+            visibility .35s linear;
+        }
+        .ticker-appear.in {
+          opacity: 1;
+          transform: translateY(0) scale(1);
+          visibility: visible;
+        }
+        .ticker-appear.out {
+          opacity: 0;
+          transform: translateY(16px) scale(.98);
+          visibility: hidden;
         }
       `}</style>
     </div>
@@ -117,7 +171,7 @@ export default function StockTicker({
 
 function Item({ row }) {
   const up = row.changePct >= 0;
-  const color = up ? "#34d399" /* emerald-400 */ : "#fb7185" /* rose-400 */;
+  const color = up ? "#34d399" : "#fb7185";
   const dot = { color: "rgba(255,255,255,.22)", marginLeft: 12, marginRight: 0 };
   const symbolStyle = { color: "rgba(255,255,255,.85)", letterSpacing: ".02em" };
   const priceStyle  = { color: "rgba(255,255,255,.92)", fontVariantNumeric: "tabular-nums" };
