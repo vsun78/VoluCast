@@ -1,4 +1,3 @@
-// Bento_5_v4.jsx
 import React, { useState, useEffect } from "react";
 import "./Bento.css";
 import Chart from "./Chart";
@@ -7,13 +6,14 @@ import StarBorder from "./StarBorder";
 import TimeLocationCard from "./TimeLocationCard";
 import "./TimeLocationCard.css";
 import OilBarCard from "./OilBarCard";
+import Card2ResultsModal from "./Card2ResultsModal";
 
 const cells = [1, 2, 3, 4, 5];
-export const Cell = ({ i = 0 }) => <div>{i}</div>;
+export const Cell = ({ i = 0 }) => <div className="fallback-cell">Card {i}</div>;
 
 export default function Bento_5_v4() {
   const [activeModal, setActiveModal] = useState(null);
-  const [modalPhase, setModalPhase] = useState("enter"); // 'enter' | 'exit'
+  const [modalPhase, setModalPhase] = useState("enter");
 
   useEffect(() => {
     const onKey = (e) => e.key === "Escape" && startClose();
@@ -68,8 +68,12 @@ export default function Bento_5_v4() {
               </StarBorder>
 
               {shouldShowView(i) && (
-                <button className="view-btn" onClick={() => setActiveModal(i)}>
-                  <img src="/eyeIcon.png" alt="View" className="view-icon" />
+                <button
+                  className="view-btn"
+                  aria-label={`View details for card ${i + 1}`}
+                  onClick={() => setActiveModal(i)}
+                >
+                  <img src="/eyeIcon.png" alt="" className="view-icon" />
                 </button>
               )}
             </div>
@@ -85,13 +89,19 @@ export default function Bento_5_v4() {
           <div
             className={`modal-sheet ${modalPhase === "exit" ? "closing" : ""}`}
             onClick={(e) => e.stopPropagation()}
+            role="dialog"
+            aria-modal="true"
           >
-            <div className="modal-header">
-              <h2>Details</h2>
-              <button className="modal-close" onClick={startClose}>×</button>
-            </div>
+          
+
             <div className="modal-body">
-              {/* put whatever you want to show here */}
+              {activeModal === 1 ? (
+                <Card2ResultsModal />
+              ) : (
+                <div className="text-sm text-gray-600">
+                  No custom content wired for this card yet.
+                </div>
+              )}
             </div>
           </div>
         </div>
