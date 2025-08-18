@@ -1,3 +1,4 @@
+
 import React, { useMemo } from "react";
 import {
   LineChart,
@@ -10,6 +11,7 @@ import {
   Brush,
   ReferenceDot,
 } from "recharts";
+
 
 function makeFakeMonth() {
   const out = [];
@@ -25,8 +27,9 @@ function makeFakeMonth() {
   return out;
 }
 
-export default function Card2ResultsModal() {
-  const data = useMemo(() => makeFakeMonth(), []);
+export default function Card2ResultsModal({ data: incoming }) {
+
+  const data = useMemo(() => incoming ?? makeFakeMonth(), [incoming]);
   const startDate = data[0]?.date || "";
   const endDate = data[data.length - 1]?.date || "";
   const today = data[data.length - 1];
