@@ -7,47 +7,72 @@ import OilBarCard from "./OilBarCard";
 function cn(...parts) { return parts.filter(Boolean).join(" "); }
 
 function AnimatedListItem({ children }) {
-  const animations = {
-    initial: { opacity: 0, y: 8, scale: 0.98 },
-    animate: { opacity: 1, y: 0, scale: 1 },
-    exit: { opacity: 0, y: -8, scale: 0.98 },
-    transition: { type: "spring", stiffness: 300, damping: 30 },
-  };
-  return <motion.div {...animations} layout="position" className="w-full">{children}</motion.div>;
+  return (
+    <motion.div
+      layout               // <<< smoothly push siblings down
+      initial={{ y: -12, opacity: 0 }}
+      animate={{ y: 0, opacity: 1 }}
+      exit={{ opacity: 0, height: 0, marginTop: 0, marginBottom: 0 }}
+      transition={{ type: "spring", stiffness: 420, damping: 36 }}
+      style={{ overflow: "hidden" }} // enables height collapse on exit
+      className="w-full"
+    >
+      {children}
+    </motion.div>
+  );
 }
 
-const AnimatedList = memo(function AnimatedList({ items, delay = 10000, maxVisible = 4, className }) {
+
+const AnimatedList = memo(function AnimatedList({
+  items,
+  delay = 10000,       // add one every 10s
+  maxVisible = 4,
+  className,
+}) {
   const [visible, setVisible] = useState([]);
   const idxRef = useRef(0);
+  const idCounter = useRef(0);
   const flat = useMemo(() => items.slice(), [items]);
 
+  // seed + interval
   useEffect(() => {
     if (!flat.length) return;
-    const seed = [];
-    for (let i = 0; i < Math.min(maxVisible, flat.length); i++) seed.unshift(flat[i]);
-    setVisible(seed);
+
+    const seeded = [];
+    for (let i = 0; i < Math.min(maxVisible, flat.length); i++) {
+      seeded.unshift({ ...flat[i], __id: idCounter.current++ }); // stable id
+    }
+    setVisible(seeded);
     idxRef.current = maxVisible;
 
     const id = setInterval(() => {
       setVisible(prev => {
-        const next = flat[idxRef.current % flat.length];
+        const nextRaw = flat[idxRef.current % flat.length];
         idxRef.current += 1;
-        return [next, ...prev].slice(0, maxVisible);
+
+        // put newest on top with a unique, stable key
+        const next = { ...nextRaw, __id: idCounter.current++ };
+        const updated = [next, ...prev];
+
+        // trim to maxVisible so the last one EXITs (fade+collapse)
+        if (updated.length > maxVisible) updated.length = maxVisible;
+        return updated;
       });
     }, delay);
+
     return () => clearInterval(id);
   }, [delay, maxVisible, flat]);
 
   return (
-    <div className={cn("flex flex-col gap-3 w-full", className)}>
+    <motion.div layout className={cn("flex flex-col gap-2 w-full", className)}>
       <AnimatePresence initial={false}>
-        {visible.map((item, i) => (
-          <AnimatedListItem key={`${item.name}-${i}-${item.time}`}>
+        {visible.map(item => (
+          <AnimatedListItem key={item.__id}>
             <Notification {...item} />
           </AnimatedListItem>
         ))}
       </AnimatePresence>
-    </div>
+    </motion.div>
   );
 });
 
