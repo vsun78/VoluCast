@@ -9,6 +9,8 @@ import "./TimeLocationCard.css";
 import OilBarCard from "./OilBarCard";
 import Card2ResultsModal from "./Card2ResultsModal";
 import Card2PreviewChart from "./Card2PreviewChart";
+import CrudeStocksPopup from "./CrudeStocksPopup";
+
 
 const cells = [1, 2, 3, 4, 5];
 export const Cell = ({ i = 0 }) => <div className="fallback-cell">Card {i}</div>;
@@ -114,14 +116,17 @@ export default function Bento_5_v4() {
             aria-modal="true"
           >
             <div className="modal-body">
-              {activeModal === 1 ? (
-                <Card2ResultsModal data={card2Data} />
-              ) : (
-                <div className="text-sm" style={{ color: "#4b5563" }}>
-                  No custom content wired for this card yet.
-                </div>
-              )}
-            </div>
+  {activeModal === 1 ? (
+    <Card2ResultsModal data={card2Data} />
+  ) : activeModal === 4 ? (
+    <CrudeStocksPopup />
+  ) : (
+    <div className="text-sm" style={{ color: "#4b5563" }}>
+      No custom content wired for this card yet.
+    </div>
+  )}
+</div>
+
           </div>
         </div>
       )}
