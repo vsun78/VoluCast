@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useMemo } from "react";
 import "./Bento.css";
 import Chart from "./Chart";
@@ -11,6 +10,9 @@ import Card2ResultsModal from "./Card2ResultsModal";
 import Card2PreviewChart from "./Card2PreviewChart";
 import CrudeStocksPopup from "./CrudeStocksPopup";
 
+// NEW: bring in the large edge-to-edge modal + news popup
+import ModalOverlay from "./ModalOverlay"; // big overlay shell
+import NewsPopup from "./NewsPopup";       // news/politics content
 
 const cells = [1, 2, 3, 4, 5];
 export const Cell = ({ i = 0 }) => <div className="fallback-cell">Card {i}</div>;
@@ -33,6 +35,9 @@ export default function Bento_5_v4() {
   const [activeModal, setActiveModal] = useState(null);
   const [modalPhase, setModalPhase] = useState("enter");
 
+  // NEW: separate state for the top-left news popup
+  const [newsOpen, setNewsOpen] = useState(false);
+
   // One dataset for Card 2 (shared by preview + modal)
   const card2Data = useMemo(() => makeFakeMonth(), []);
 
@@ -42,7 +47,7 @@ export default function Bento_5_v4() {
     return () => window.removeEventListener("keydown", onKey);
   }, []);
 
-  // lock scroll when modal is open
+  // lock scroll when modal is open (legacy sheet)
   useEffect(() => {
     if (activeModal !== null) {
       document.body.style.overflow = "hidden";
@@ -72,7 +77,7 @@ export default function Bento_5_v4() {
                 speed="6s"
                 thickness={3}
               >
-                {/* changed back to bento-cell so hover animation applies */}
+                {/* hover animation applies to .bento-cell */}
                 <div className="bento-cell">
                   {i === 0 ? (
                     <Chart />
@@ -94,7 +99,15 @@ export default function Bento_5_v4() {
                 <button
                   className="view-btn"
                   aria-label={`Open details for card ${i + 1}`}
-                  onClick={() => setActiveModal(i)}
+                  onClick={() => {
+                    // For the top-left card (i === 0), open the BIG news modal.
+                    if (i === 0) {
+                      setNewsOpen(true);
+                    } else {
+                      // All other cards use the existing modal system unchanged.
+                      setActiveModal(i);
+                    }
+                  }}
                 >
                   <img src="/eyeIcon.png" alt="" className="view-icon" />
                 </button>
@@ -104,6 +117,12 @@ export default function Bento_5_v4() {
         })}
       </div>
 
+      {/* --- NEW: Top-left BIG popup using ModalOverlay + NewsPopup --- */}
+      <ModalOverlay open={newsOpen} onClose={() => setNewsOpen(false)}>
+        <NewsPopup onClose={() => setNewsOpen(false)} />
+      </ModalOverlay>
+
+      {/* --- Existing modal flow for the other cards (unchanged) --- */}
       {activeModal !== null && (
         <div
           className={`modal-backdrop ${modalPhase === "exit" ? "closing" : ""}`}
@@ -116,17 +135,16 @@ export default function Bento_5_v4() {
             aria-modal="true"
           >
             <div className="modal-body">
-  {activeModal === 1 ? (
-    <Card2ResultsModal data={card2Data} />
-  ) : activeModal === 4 ? (
-    <CrudeStocksPopup />
-  ) : (
-    <div className="text-sm" style={{ color: "#4b5563" }}>
-      No custom content wired for this card yet.
-    </div>
-  )}
-</div>
-
+              {activeModal === 1 ? (
+                <Card2ResultsModal data={card2Data} />
+              ) : activeModal === 4 ? (
+                <CrudeStocksPopup />
+              ) : (
+                <div className="text-sm" style={{ color: "#4b5563" }}>
+                  No custom content wired for this card yet.
+                </div>
+              )}
+            </div>
           </div>
         </div>
       )}
