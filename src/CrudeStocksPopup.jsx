@@ -55,31 +55,38 @@ const AnimatedList = memo(function AnimatedList({ items, delay = 10000, maxVisib
 function Notification({ name, description, icon, color, time }) {
   const cardStyle = {
     background: "#fff",
-    borderRadius: 14,
-    padding: 12,
-    border: "1px solid rgba(0,0,0,0.06)",
-    boxShadow:
-      "0 1px 1px rgba(0,0,0,0.04), 0 8px 16px rgba(0,0,0,0.06), 0 16px 28px rgba(0,0,0,0.04)",
-    minHeight: 68,
+    borderRadius: 10,
+    padding: 8,                               // tighter padding
+    border: "1px solid rgba(0,0,0,0.05)",
+    boxShadow: "0 4px 10px rgba(0,0,0,0.06)",
+    minHeight: 48,                            // smaller height
   };
-  const rowStyle = { display: "flex", alignItems: "center", gap: 12, minWidth: 0 };
+
+  const rowStyle = { display: "flex", alignItems: "center", gap: 8, minWidth: 0 };
+
   const iconStyle = {
-    width: 40, height: 40, borderRadius: 9999, backgroundColor: color,
-    display: "flex", alignItems: "center", justifyContent: "center", flex: "0 0 40px",
+    width: 26, height: 26,                    // much smaller icon pill
+    borderRadius: 9999,
+    backgroundColor: color,
+    display: "flex", alignItems: "center", justifyContent: "center",
+    flex: "0 0 26px",
   };
+
   const titleRowStyle = {
-    display: "flex", alignItems: "center", gap: 6, fontWeight: 600,
-    fontSize: 15, lineHeight: "22px", color: "#111827", whiteSpace: "nowrap",
-    overflow: "hidden", textOverflow: "ellipsis",
+    display: "flex", alignItems: "center", gap: 6,
+    fontWeight: 600, fontSize: 13, lineHeight: "18px",
+    color: "#111827",
+    whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis",
   };
-  const dotStyle = { color: "#9CA3AF" };
-  const timeStyle = { color: "#6B7280" };
-  const subStyle = { marginTop: 2, fontSize: 12, color: "#6B7280" };
+
+  const dotStyle  = { color: "#9CA3AF" };
+  const timeStyle = { color: "#6B7280", fontSize: 12 };
+  const subStyle  = { marginTop: 1, fontSize: 11, color: "#6B7280" };
 
   return (
     <figure style={cardStyle}>
       <div style={rowStyle}>
-        <div style={iconStyle}><span style={{ fontSize: 16 }}>{icon}</span></div>
+        <div style={iconStyle}><span style={{ fontSize: 12 }}>{icon}</span></div>
         <div style={{ minWidth: 0, flex: 1 }}>
           <div style={titleRowStyle}>
             <span style={{ overflow: "hidden", textOverflow: "ellipsis" }}>{name}</span>
@@ -92,6 +99,8 @@ function Notification({ name, description, icon, color, time }) {
     </figure>
   );
 }
+
+
 
 
 const baseNotifications = [
@@ -107,7 +116,7 @@ export default function CrudeStocksPopup() {
   const WRAP = { width: "100%", height: 600, padding: 16, boxSizing: "border-box" };
   const GRID = {
     display: "grid",
-    gridTemplateColumns: "300px 1fr", // <- narrower alerts, bigger chart
+    gridTemplateColumns: "280px 1fr",
     columnGap: 28,
     width: "100%", height: "100%", minWidth: 0, minHeight: 0,
   };
@@ -128,12 +137,16 @@ export default function CrudeStocksPopup() {
 
         {/* RIGHT: Chart (dominant space) */}
         <section style={COL}>
-          <h3 style={TITLE}>U.S. Crude Stocks vs WTI (Weekly)</h3>
-          <div style={{ ...BODY }}>
-           
-            <OilBarCard weeks={12} title="Oil Snapshot (WTI vs. Stocks)" height={540} />
-          </div>
-        </section>
+  <h3 style={TITLE}>U.S. Crude Stocks vs WTI (Weekly)</h3>
+
+  {/* Centered, smaller chart box */}
+  <div style={{ ...BODY, display: "flex", justifyContent: "center", alignItems: "flex-start" }}>
+    <div style={{ width: 560, height: 380, maxWidth: "100%" }}>
+      <OilBarCard weeks={12} title="Oil Snapshot (WTI vs. Stocks)" height={380} />
+    </div>
+  </div>
+</section>
+
       </div>
     </div>
   );
