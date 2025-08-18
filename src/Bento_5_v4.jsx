@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useMemo } from "react";
 import "./Bento.css";
 import Chart from "./Chart";
@@ -30,7 +31,7 @@ export default function Bento_5_v4() {
   const [activeModal, setActiveModal] = useState(null);
   const [modalPhase, setModalPhase] = useState("enter");
 
-  
+  // One dataset for Card 2 (shared by preview + modal)
   const card2Data = useMemo(() => makeFakeMonth(), []);
 
   useEffect(() => {
@@ -39,7 +40,7 @@ export default function Bento_5_v4() {
     return () => window.removeEventListener("keydown", onKey);
   }, []);
 
-
+  // lock scroll when modal is open
   useEffect(() => {
     if (activeModal !== null) {
       document.body.style.overflow = "hidden";
@@ -69,11 +70,11 @@ export default function Bento_5_v4() {
                 speed="6s"
                 thickness={3}
               >
-                <div className="bento-card">
+                {/* changed back to bento-cell so hover animation applies */}
+                <div className="bento-cell">
                   {i === 0 ? (
                     <Chart />
                   ) : i === 1 ? (
-                   
                     <Card2PreviewChart data={card2Data} />
                   ) : i === 3 ? (
                     <WeatherImpactCard />
@@ -114,7 +115,6 @@ export default function Bento_5_v4() {
           >
             <div className="modal-body">
               {activeModal === 1 ? (
-               
                 <Card2ResultsModal data={card2Data} />
               ) : (
                 <div className="text-sm" style={{ color: "#4b5563" }}>
