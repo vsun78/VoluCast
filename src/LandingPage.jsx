@@ -1,27 +1,69 @@
 
-import React, { useRef } from "react";
+import React, { useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import VoluCastTitle from "./VoluCastTitle"; // new content (video text) component
-import ScrollFloat from "./ScrollFloat";      // provided animation (3rd-party style)
+import { gsap } from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+
+import VoluCastTitle from "./VoluCastTitle";
+import ScrollFloat from "./ScrollFloat";
 import "./LandingPage.css";
+
+gsap.registerPlugin(ScrollTrigger);
 
 export default function LandingPage() {
   const navigate = useNavigate();
-  const scrollRef = useRef(null);
+
+  const voluLayerRef = useRef(null);
+  const loginRef = useRef(null);
+
+  useEffect(() => {
+    // Parallax for VoluCast block
+    if (voluLayerRef.current) {
+      gsap.to(voluLayerRef.current, {
+        y: -200,
+        scale: 1.05,
+        opacity: 1,
+        ease: "none",
+        scrollTrigger: {
+          trigger: voluLayerRef.current,
+          start: "top bottom",
+          end: "bottom top",
+          scrub: true,
+        },
+      });
+    }
+
+    // Login card reveal
+    if (loginRef.current) {
+      gsap.fromTo(
+        loginRef.current,
+        { opacity: 0, y: 100 },
+        {
+          opacity: 1,
+          y: 0,
+          ease: "power3.out",
+          scrollTrigger: {
+            trigger: loginRef.current,
+            start: "top 85%",
+            end: "top 60%",
+            scrub: true,
+          },
+        }
+      );
+    }
+  }, []);
 
   const handleLogin = (e) => {
     e.preventDefault();
-    // Decoy login success → go to Grid page
     navigate("/dashboard");
   };
 
   return (
-    <main className="landing-wrap" ref={scrollRef}>
-      {/* SECTION 1 — hero text and animated headline */}
-      <section className="landing-hero">
-        <div className="landing-hero-inner">
+    <main className="landing-wrap">
+      {/* HERO */}
+      <section className="landing-section">
+        <div className="landing-inner">
           <ScrollFloat
-            scrollContainerRef={scrollRef}
             animationDuration={1}
             ease="back.inOut(2)"
             scrollStart="center bottom+=50%"
@@ -31,36 +73,36 @@ export default function LandingPage() {
             Predictive AI for Material Volume
           </ScrollFloat>
 
-          {/* VoluCast video text (moved from header; now content) */}
-          <VoluCastTitle />
-          <div className="scroll-hint">Scroll to continue ↓</div>
+          <div className="volu-parallax" ref={voluLayerRef}>
+            <VoluCastTitle />
+          </div>
         </div>
       </section>
 
-      {/* SECTION 2 — decoy login block */}
-      <section className="landing-login" id="login">
-        <div className="login-card">
-          <h2 className="login-title">Welcome back</h2>
-          <p className="login-sub">Demo sign-in (decoy)</p>
+      {/* LOGIN */}
+      <section className="landing-section alt" id="login-section">
+        <div className="landing-inner">
+          <div className="login-card" ref={loginRef}>
+            <h2 className="login-title">Welcome back</h2>
+            <p className="login-sub">Demo sign-in (placeholder)</p>
 
-          <form className="login-form" onSubmit={handleLogin}>
-            <label className="login-label">
-              Email
-              <input className="login-input" type="email" placeholder="you@example.com" />
-            </label>
-            <label className="login-label">
-              Password
-              <input className="login-input" type="password" placeholder="••••••••" />
-            </label>
+            <form className="login-form" onSubmit={handleLogin}>
+              <label className="login-label">
+                Email
+                <input className="login-input" type="email" placeholder="you@example.com" />
+              </label>
+              <label className="login-label">
+                Password
+                <input className="login-input" type="password" placeholder="••••••••" />
+              </label>
 
-            <button className="login-btn" type="submit">
-              Sign In
-            </button>
-          </form>
+              <button className="login-btn" type="submit">Sign In</button>
+            </form>
 
-          <p className="login-note">
-            This is a placeholder. On submit, you’ll be routed to the grid bento page.
-          </p>
+            <p className="login-note">
+              This is a decoy login. Submitting will route you to the grid bento page.
+            </p>
+          </div>
         </div>
       </section>
     </main>
