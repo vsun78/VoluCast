@@ -1,31 +1,27 @@
-
 import React, { useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 
-import VoluCastTitle from "./VoluCastTitle";
-import ScrollFloat from "./ScrollFloat";
+import VideoText from "./Components/video-text";
 import "./LandingPage.css";
 
 gsap.registerPlugin(ScrollTrigger);
 
 export default function LandingPage() {
   const navigate = useNavigate();
-
-  const voluLayerRef = useRef(null);
+  const heroRef = useRef(null);
   const loginRef = useRef(null);
 
   useEffect(() => {
-    // Parallax for VoluCast block
-    if (voluLayerRef.current) {
-      gsap.to(voluLayerRef.current, {
-        y: -200,
-        scale: 1.05,
-        opacity: 1,
+    // Parallax on the headline
+    if (heroRef.current) {
+      gsap.to(heroRef.current, {
+        y: -180,
+        scale: 1.04,
         ease: "none",
         scrollTrigger: {
-          trigger: voluLayerRef.current,
+          trigger: heroRef.current,
           start: "top bottom",
           end: "bottom top",
           scrub: true,
@@ -63,23 +59,26 @@ export default function LandingPage() {
       {/* HERO */}
       <section className="landing-section">
         <div className="landing-inner">
-          <ScrollFloat
-            animationDuration={1}
-            ease="back.inOut(2)"
-            scrollStart="center bottom+=50%"
-            scrollEnd="bottom bottom-=40%"
-            stagger={0.03}
-          >
-            Predictive AI for Material Volume
-          </ScrollFloat>
-
-          <div className="volu-parallax" ref={voluLayerRef}>
-            <VoluCastTitle />
+          <div className="hero-video-wrap" ref={heroRef}>
+            <div className="hero-video-card">
+              <VideoText
+                src="/VoluCastLoop.mp4"
+                className="w-full h-full"
+                fontFamily="'Inter', ui-sans-serif"
+                fontWeight={900}
+                fitWidth={0.92}
+                fontScale={0.26}
+                videoScale={1}
+                videoPosition="50% 45%"
+              >
+                Predictive AI for Material Volume
+              </VideoText>
+            </div>
           </div>
         </div>
       </section>
 
-      {/* LOGIN */}
+      {/* LOGIN (decoy) */}
       <section className="landing-section alt" id="login-section">
         <div className="landing-inner">
           <div className="login-card" ref={loginRef}>
