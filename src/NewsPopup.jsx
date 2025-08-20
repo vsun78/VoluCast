@@ -19,7 +19,7 @@ export default function NewsPopup({ onClose, articles: external }) {
   useEffect(() => {
     if (external) return;
     const demo = [
-      // Row 1
+      // row 1
       {
         id: "a1",
         title:
@@ -33,7 +33,7 @@ export default function NewsPopup({ onClose, articles: external }) {
       { id: "a2", title: "Federal labour board deems Air Canada flight attendants' strike ‘unlawful’", source: "CBC", time: "51 minutes ago", url: "#" },
       { id: "a3", title: "Flight attendants in Montreal protest back-to-work order", source: "CTV News", time: "20 minutes ago", url: "#" },
       { id: "a4", title: "Air Canada says CIRB ruling is ‘unlawful’ as union vows: ‘Not over’", source: "Global News", time: "26 minutes ago", url: "#" },
-      // Row 2
+      // Rsow 2
       {
         id: "b1",
         title: "Trump–Zelenskyy meeting: What’s the schedule, what’s at stake?",
@@ -59,7 +59,7 @@ export default function NewsPopup({ onClose, articles: external }) {
   }, [articles]);
 
   return (
-    <div
+    <div className="shared-font"
       style={{
         width: "min(1320px, 98vw)",
         height: "88vh",

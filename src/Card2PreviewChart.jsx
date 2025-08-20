@@ -18,7 +18,7 @@ export default function Card2PreviewChart({ data }) {
   const today = data[data.length - 1];
 
   return (
-    <div
+    <div className="shared-font"
       style={{
         border: "1px solid #e5e7eb",
         borderRadius: 12,

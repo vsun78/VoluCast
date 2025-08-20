@@ -35,7 +35,7 @@ export default function Card2ResultsModal({ data: incoming }) {
   const today = data[data.length - 1];
 
   return (
-    <div
+    <div className = "shared-font"
       style={{
         display: "flex",
         gap: 16,
