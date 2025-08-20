@@ -16,7 +16,7 @@ export default function LandingPage() {
   const loginRef = useRef(null);
 
   useEffect(() => {
-    
+    // parallax on the headline
     if (heroRef.current) {
       gsap.to(heroRef.current, {
         y: -180,
@@ -31,7 +31,7 @@ export default function LandingPage() {
       });
     }
 
-    
+    // Ffade/slide in login card
     if (loginRef.current) {
       gsap.fromTo(
         loginRef.current,
@@ -60,29 +60,38 @@ export default function LandingPage() {
     <main className="landing-wrap">
       {/* HERO */}
       <section className="landing-section">
-        <div className="landing-inner">
+        <div className="landing-inner hero-inner">
           <div className="hero-video-wrap" ref={heroRef}>
             <div className="hero-video-card">
               <VideoText
                 src="/VoluCastLoop.mp4"
                 className="w-full h-full"
-                fontFamily="'Inter', ui-sans-serif"
+                fontFamily={
+    '-apple-system, system-ui, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Helvetica Neue", "Segoe UI", Roboto, Arial, sans-serif'
+  }
                 fontWeight={900}
-                fitWidth={0.92}
-                fontScale={0.26}
+                
+                fontScale={0.82}  
+                fitWidth={0.85}   
                 videoScale={1}
                 videoPosition="50% 45%"
               >
-                Predictive AI for Material Volume
+                VOLUCAST
               </VideoText>
+
+              <p className="hero-subtitle">
+              <em>Tomorrow’s tonnage, today</em>
+            </p>
             </div>
           </div>
+
+          
         </div>
       </section>
 
       {/* BOAT PARALLAX */}
-      <BoatParallax boatSrc="/mca-mmtl-boat.png"/>
-       {/* buffer so the boat can scroll the entire way */}
+      <BoatParallax boatSrc="/mca-mmtl-boat.png" />
+      {/* buffer so the boat can scroll the entire way */}
       <div className="boat-scroll-buffer" aria-hidden />
 
       {/* LOGIN (decoy) */}

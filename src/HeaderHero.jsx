@@ -1,4 +1,4 @@
-// src/HeaderHero.jsx
+
 "use client";
 import React from "react";
 import VideoText from "./Components/video-text";
