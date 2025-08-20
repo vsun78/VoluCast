@@ -1,4 +1,4 @@
-// src/Chart.jsx
+
 import React, { useEffect, useRef, useState } from "react";
 import "./Chart.css";
 

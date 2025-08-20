@@ -1,4 +1,4 @@
-
+// card 2 is the main chart for predictions and stuff
 import React, { useMemo } from "react";
 import {
   LineChart,
