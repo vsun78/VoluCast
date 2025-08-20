@@ -70,10 +70,10 @@ export default function LandingPage() {
   fontWeight={900}
   fontScale={0.82}
   fitWidth={0.96}
-  videoScale={1}
+  videoScale={0.6}
   videoPosition="50% 56%"
   videoTranslateX={-20}   // left
-  videoTranslateY={-15}      // down
+  videoTranslateY={-25}      // down
 >
                 VOLUCAST
               </VideoText>

@@ -2,14 +2,6 @@
 
 import React, { useEffect, useLayoutEffect, useRef, useState } from "react";
 
-/**
- * VideoText (with precise centering controls)
- * - fontScale: fraction of container HEIGHT for text sizing
- * - fitWidth:  max fraction of container WIDTH for text width cap
- * - videoScale: zoom the video (keep >= 1 to avoid empty areas)
- * - videoPosition: fallback object-position (may be ignored in some browsers inside foreignObject)
- * - videoTranslateX / videoTranslateY: percent-based nudges AFTER sizing (reliable everywhere)
- */
 export default function VideoText({
   src,
   children,
@@ -24,19 +16,28 @@ export default function VideoText({
   fontFamily = "Inter, ui-sans-serif",
   videoScale = 1.0,
   videoPosition = "50% 50%",
-  videoTranslateX = 0,   // % of element width (positive = right)
-  videoTranslateY = 0,   // % of element height (positive = down)
+  videoTranslateX = 0,
+  videoTranslateY = 0,
   as: Component = "div",
 }) {
   const content = React.Children.toArray(children).join("");
+
   const wrapRef = useRef(null);
-  const svgRef  = useRef(null);
+  const svgRef = useRef(null);
   const textRef = useRef(null);
+  const videoRef = useRef(null);
+
   const [fontPx, setFontPx] = useState(24);
+  const [minCoverScale, setMinCoverScale] = useState(1);
+
+  const clipIdRef = useRef(`video-text-clip-${Math.random().toString(36).slice(2)}`);
 
   useEffect(() => {
     if (!wrapRef.current) return;
-    const ro = new ResizeObserver(() => sizeToFit());
+    const ro = new ResizeObserver(() => {
+      sizeToFit();
+      computeMinScale();
+    });
     ro.observe(wrapRef.current);
     return () => ro.disconnect();
   }, []);
@@ -45,28 +46,56 @@ export default function VideoText({
     sizeToFit();
   }, [content, fontScale, fitWidth]);
 
+  useEffect(() => {
+    const v = videoRef.current;
+    if (!v) return;
+    const onMeta = () => computeMinScale();
+    v.addEventListener("loadedmetadata", onMeta);
+    return () => v.removeEventListener("loadedmetadata", onMeta);
+  }, []);
+
+  function computeMinScale() {
+    const el = wrapRef.current;
+    const v = videoRef.current;
+    if (!el || !v || !v.videoWidth || !v.videoHeight) return;
+
+    const cw = el.clientWidth || 0;
+    const ch = el.clientHeight || 0;
+    const vw = v.videoWidth;
+    const vh = v.videoHeight;
+
+    if (!cw || !ch || !vw || !vh) return;
+
+    const scaleToCover = Math.max(cw / vw, ch / vh);
+    setMinCoverScale(scaleToCover);
+  }
+
   function sizeToFit() {
-    const el   = wrapRef.current;
-    const svg  = svgRef.current;
+    const el = wrapRef.current;
+    const svg = svgRef.current;
     const text = textRef.current;
     if (!el || !svg || !text) return;
 
-    const { width: cw, height: ch } = el.getBoundingClientRect();
+    const rect = el.getBoundingClientRect();
+    const cw = rect.width || 0;
+    const ch = rect.height || 0;
     if (!cw || !ch) return;
 
-    // Convert CSS px -> SVG viewBox units
-    const vbw = (svg.viewBox && svg.viewBox.baseVal.width)  || 1200;
+    const vbw = (svg.viewBox && svg.viewBox.baseVal.width) || 1200;
     const vbh = (svg.viewBox && svg.viewBox.baseVal.height) || 600;
-    const pxToVbX = vbw / svg.clientWidth;
-    const pxToVbY = vbh / svg.clientHeight;
 
-    // Start from HEIGHT (so fontScale matters)
+    const clientW = svg.clientWidth || cw;
+    const clientH = svg.clientHeight || ch;
+
+    const pxToVbX = vbw / clientW;
+    const pxToVbY = vbh / clientH;
+
     let f = Math.max(8, Math.floor(ch * fontScale * pxToVbY));
     text.setAttribute("font-size", String(f));
 
-    // Respect width cap
     const targetW = cw * fitWidth * pxToVbX;
     let { width: tw } = text.getBBox();
+
     if (tw > targetW) {
       const k = targetW / tw;
       f = Math.max(6, Math.floor(f * k));
@@ -76,9 +105,10 @@ export default function VideoText({
     setFontPx(f);
   }
 
+  const effectiveScale = Math.max(videoScale, minCoverScale);
+
   return (
     <Component ref={wrapRef} className={`relative w-full h-full ${className}`}>
-      {/* keep whatever viewBox you currently use */}
       <svg
         ref={svgRef}
         className="absolute inset-0 w-full h-full"
@@ -87,11 +117,11 @@ export default function VideoText({
         aria-hidden="true"
       >
         <defs>
-          <clipPath id="video-text-clip">
+          <clipPath id={clipIdRef.current}>
             <text
               ref={textRef}
               x="600"
-              y="300"                 /* center of 600-high viewBox */
+              y="300"
               textAnchor="middle"
               dominantBaseline="middle"
               fontFamily={fontFamily}
@@ -103,16 +133,16 @@ export default function VideoText({
           </clipPath>
         </defs>
 
-        <foreignObject x="0" y="0" width="100%" height="100%" clipPath="url(#video-text-clip)">
-          {/* wrapper to apply transforms reliably */}
+        <foreignObject x="0" y="0" width="100%" height="100%" clipPath={`url(#${clipIdRef.current})`}>
           <div style={{ width: "100%", height: "100%", overflow: "hidden" }}>
             <video
+              ref={videoRef}
               className="w-full h-full"
               style={{
                 objectFit: "cover",
-                objectPosition: videoPosition, // may be ignored in some browsers
+                objectPosition: videoPosition,
                 display: "block",
-                transform: `translate(${videoTranslateX}%, ${videoTranslateY}%) scale(${videoScale})`,
+                transform: `translate(${videoTranslateX}%, ${videoTranslateY}%) scale(${effectiveScale})`,
                 transformOrigin: "50% 50%",
               }}
               autoPlay={autoPlay}
