@@ -9,9 +9,9 @@ import OilBarCard from "./OilBarCard";
 import Card2ResultsModal from "./Card2ResultsModal";
 import Card2PreviewChart from "./Card2PreviewChart";
 import CrudeStocksPopup from "./CrudeStocksPopup";
+import NewsPreview from "./Components/NewsPreview";
 
-// NEW: bring in the large edge-to-edge modal + news popup
-import ModalOverlay from "./ModalOverlay"; // big overlay shell
+import ModalOverlay from "./ModalOverlay"; 
 import NewsPopup from "./NewsPopup";       // news/politics content
 
 const cells = [1, 2, 3, 4, 5];
@@ -35,11 +35,21 @@ export default function Bento_5_v4() {
   const [activeModal, setActiveModal] = useState(null);
   const [modalPhase, setModalPhase] = useState("enter");
 
-  // NEW: separate state for the top-left news popup
   const [newsOpen, setNewsOpen] = useState(false);
 
-  // One dataset for Card 2 (shared by preview + modal)
+
   const card2Data = useMemo(() => makeFakeMonth(), []);
+
+
+  const demoArticle = {
+    id: "a1",
+    title:
+      "Air Canada suspends profit forecast as striking union defies back-to-work order",
+    source: "Reuters",
+    time: "1 hour ago",
+    url: "#",
+    imageUrl: "/airCanada.jpg",
+  };
 
   useEffect(() => {
     const onKey = (e) => e.key === "Escape" && startClose();
@@ -80,7 +90,8 @@ export default function Bento_5_v4() {
                 {/* hover animation applies to .bento-cell */}
                 <div className="bento-cell">
                   {i === 0 ? (
-                    <Chart />
+                    // News preview card (one top story)
+                    <NewsPreview article={demoArticle} />
                   ) : i === 1 ? (
                     <Card2PreviewChart data={card2Data} />
                   ) : i === 3 ? (
@@ -117,12 +128,12 @@ export default function Bento_5_v4() {
         })}
       </div>
 
-      {/* --- NEW: Top-left BIG popup using ModalOverlay + NewsPopup --- */}
+
       <ModalOverlay open={newsOpen} onClose={() => setNewsOpen(false)}>
         <NewsPopup onClose={() => setNewsOpen(false)} />
       </ModalOverlay>
 
-      {/* --- Existing modal flow for the other cards (unchanged) --- */}
+      
       {activeModal !== null && (
         <div
           className={`modal-backdrop ${modalPhase === "exit" ? "closing" : ""}`}
