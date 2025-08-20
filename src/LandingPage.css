@@ -1,7 +1,11 @@
 .landing-wrap {
   min-height: 100vh;
-  background: var(--bg,#f6f7fb);
-  color: var(--text,#111);
+  color: var(--text, #111);
+  background: radial-gradient(
+    ellipse 80% 80% at 50% -20%,
+    rgba(120, 119, 198, 0.3),
+    rgba(255, 255, 255, 0)
+  );
 }
 
 .landing-section {
@@ -9,10 +13,10 @@
   display: grid;
   place-items: center;
   padding: 96px 20px;
-  background: linear-gradient(180deg, #ffffff 0%, #ffffff 100%);
+/*  background: linear-gradient(180deg, #ffffff 0%, #ffffff 100%);*/
 }
 .landing-section.alt {
-  background: #ffffff;
+  /*background: #ffffff;*/
 }
 
 .landing-inner {
