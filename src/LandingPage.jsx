@@ -6,6 +6,8 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 import VideoText from "./Components/video-text";
 import "./LandingPage.css";
 
+import BoatParallax from "./BoatParallax";
+
 gsap.registerPlugin(ScrollTrigger);
 
 export default function LandingPage() {
@@ -14,7 +16,7 @@ export default function LandingPage() {
   const loginRef = useRef(null);
 
   useEffect(() => {
-    // Parallax on the headline
+    
     if (heroRef.current) {
       gsap.to(heroRef.current, {
         y: -180,
@@ -29,7 +31,7 @@ export default function LandingPage() {
       });
     }
 
-    // Login card reveal
+    
     if (loginRef.current) {
       gsap.fromTo(
         loginRef.current,
@@ -77,6 +79,11 @@ export default function LandingPage() {
           </div>
         </div>
       </section>
+
+      {/* BOAT PARALLAX */}
+      <BoatParallax boatSrc="/mca-mmtl-boat.png"/>
+       {/* buffer so the boat can scroll the entire way */}
+      <div className="boat-scroll-buffer" aria-hidden />
 
       {/* LOGIN (decoy) */}
       <section className="landing-section alt" id="login-section">

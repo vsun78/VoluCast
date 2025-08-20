@@ -27,10 +27,10 @@
   text-align: center;
 }
 
-/* Headline video-text container */
+
 .hero-video-wrap { width: min(1400px, 96%); }
 .hero-video-card {
-  /* Increased height clamp to avoid cutting off the first/last letters */
+  
   height: clamp(260px, 34vw, 420px);
   overflow: hidden;
   background: transparent;
@@ -38,7 +38,7 @@
   box-shadow: none;
 }
 
-/* Login card styling */
+
 .login-card {
   width: min(640px, 92vw);
   padding: 28px;
@@ -74,6 +74,15 @@
   color: white;
 }
 .login-note { margin-top: 12px; color: #667085; font-size: 13px; }
+
+/* extra scroll room so the boat can exit before login appears */
+.boat-scroll-buffer {
+  height: 90vh;            
+}
+@media (max-width: 900px) {
+  .boat-scroll-buffer { height: 60vh; }
+}
+
 
 @media (max-width: 900px) {
   .landing-section { padding: 72px 16px; }

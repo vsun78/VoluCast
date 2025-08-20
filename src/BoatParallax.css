@@ -1,0 +1,12 @@
+
+.landing-wrap,
+.landing-section {
+  position: relative;
+  z-index: 1;
+}
+
+
+.landing-section,
+.landing-section.alt {
+  background: transparent;
+}
