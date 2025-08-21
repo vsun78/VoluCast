@@ -122,7 +122,42 @@ export default function Bento_5_v4() {
                   ) : i === 2 ? (
                     <TimeLocationCard />
                   ) : i === 4 ? (
-                    <OilBarCard weeks={6} height={120} />
+                    <div
+                      style={{
+                        position: "relative",
+                        display: "flex",
+                        flexDirection: "column",
+                        width: "100%",
+                        height: "100%",
+                      }}
+                    >
+                      {/* Title pinned top-left */}
+                      <div
+                        style={{
+                          position: "absolute",
+                          top: 10,
+                          left: 14,
+                          fontWeight: 700,
+                          fontSize: 16,
+                          color: "#111827",
+                        }}
+                      >
+                        WTI &amp; U.S. Crude Stocks
+                      </div>
+
+                      {/* Chart centered */}
+                      <div
+                        style={{
+                          flex: 1,
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          padding: "28px 14px 14px", // top padding so chart clears the title
+                        }}
+                      >
+                        <OilBarCard weeks={6} height={120} />
+                      </div>
+                    </div>
                   ) : (
                     <Cell i={i + 1} />
                   )}

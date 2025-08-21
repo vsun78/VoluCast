@@ -264,3 +264,17 @@
 .modal-sheet.closing {
   animation: sheetOut .25s cubic-bezier(.2,.7,.2,1) forwards;
 }
+
+/* Shared card title style (matches Time & Location) */
+.card-title-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 14px 0;
+}
+
+.card-title {
+  font-weight: 700;
+  font-size: 14px;
+  color: #111827;
+}
