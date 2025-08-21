@@ -38,7 +38,7 @@ export default function Bento_5_v4() {
 
   const card2Data = useMemo(() => makeFakeMonth(), []);
 
-
+  // Hard-coded article + local image from /public
   const demoArticle = {
     id: "a1",
     title:

@@ -9,19 +9,7 @@ import {
   ResponsiveContainer
 } from "recharts";
 
-/**
- * OilBarCard (detailed yet compact)
- *
- * This component renders a dual-axis bar chart showing weekly WTI prices vs.
- * U.S. commercial crude inventories. It keeps axis labels, tick labels and
- * a small legend for clarity, but trims margins and bar sizes so it fits
- * comfortably inside a small Bento card. When an API is unavailable the
- * component falls back to demo data.
- *
- * Props:
- *   - weeks  (number): how many recent data points to display (default 8).
- *   - height (number): height of the chart container in pixels (default 140).
- */
+
 export default function OilBarCard({ weeks = 8, height = 140 }) {
   const [rows, setRows] = useState(null);
 
