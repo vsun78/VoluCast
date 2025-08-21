@@ -19,7 +19,7 @@
   margin: 0 auto;
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  grid-auto-rows: var(--row);   /*forces tile height */
+  grid-auto-rows: var(--row);
   gap: var(--gap);
 }
 
@@ -35,7 +35,7 @@
   padding: 4px;
   border-radius: 12px;
   height: 100%;
-  min-height: var(--row);        /* ensure each tile is at least one row tall */
+  min-height: var(--row);
 }
 
 /* 2x2 feature tile */
@@ -71,11 +71,11 @@
   border: 1px solid rgba(0,0,0,.06);
   box-shadow: 0 2px 8px rgba(0,0,0,.06);
   transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease;
-  display: flex;                /* keep number tiles centered */
+  display: flex;
   align-items: center;
   justify-content: center;
   color: #11181c;
-  overflow: hidden;             /* keeps SVG inside rounded corners */
+  overflow: hidden;
 }
 
 .bento-cell-wrapper:hover .bento-cell,
@@ -85,17 +85,11 @@
   border-color: rgba(0,0,0,.12);
 }
 
-.bento-cell-wrapper:hover .bento-cell{
-  transform: translateY(-3px);
-  box-shadow: 0 12px 36px rgba(0,0,0,.14);
-  border-color: rgba(0,0,0,.12);
-}
-
 /* Make cards fill the grid tile height */
 .bento-cell { display: flex; }
 .bento-card { height: 100%; }
 
-/* Weather Impact card (matches your mock) */
+/* Weather Impact card (unchanged styles) */
 .weather-impact-card {
   background: #ffffff;
   color: #1b2330;
@@ -103,58 +97,18 @@
   border-radius: 16px;
   padding: 14px;
 }
-
-.weather-impact-card .wi-header {
-  font-size: 14px;
-  font-weight: 700;
-  color: #5a6b84;
-  margin-bottom: 8px;
-}
-
-.weather-impact-card .wi-top {
-  display: grid;
-  grid-template-columns: 56px 1fr;
-  gap: 10px;
-  align-items: center;
-  margin-bottom: 8px;
-}
-
-.weather-impact-card .wi-icon {
-  width: 56px; height: 56px;
-  display: grid; place-items: center;
-  background: #eef5ff;
-  border-radius: 12px;
-}
-
+.weather-impact-card .wi-header { font-size: 14px; font-weight: 700; color: #5a6b84; margin-bottom: 8px; }
+.weather-impact-card .wi-top { display: grid; grid-template-columns: 56px 1fr; gap: 10px; align-items: center; margin-bottom: 8px; }
+.weather-impact-card .wi-icon { width: 56px; height: 56px; display: grid; place-items: center; background: #eef5ff; border-radius: 12px; }
 .weather-impact-card .wi-info { display: grid; gap: 2px; }
 .wi-cond { font-size: 14px; color: #52627a; }
 .wi-impact { font-size: 40px; line-height: 1; font-weight: 800; letter-spacing: -0.5px; }
-
-.wi-pill {
-  display: inline-flex; align-items: center; gap: 6px;
-  font-size: 12px; font-weight: 700;
-  padding: 6px 10px; border-radius: 999px; width: fit-content;
-}
-.wi-pill.up   { color: #0a6a2a; background: #e6f6ea; }
+.wi-pill { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 700; padding: 6px 10px; border-radius: 999px; width: fit-content; }
+.wi-pill.up { color: #0a6a2a; background: #e6f6ea; }
 .wi-pill.down { color: #8a1b1b; background: #fdeeee; }
 .wi-pill .arrow { font-size: 12px; line-height: 1; }
-
-.weather-impact-card .wi-forecast {
-  margin-top: 8px;
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 8px;
-}
-.weather-impact-card .wi-day {
-  display: grid;
-  grid-template-columns: auto 1fr auto auto;
-  gap: 6px;
-  align-items: center;
-  background: #f6f8fb;
-  border: 1px solid #ebeff5;
-  border-radius: 12px;
-  padding: 8px 10px;
-}
+.weather-impact-card .wi-forecast { margin-top: 8px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.weather-impact-card .wi-day { display: grid; grid-template-columns: auto 1fr auto auto; gap: 6px; align-items: center; background: #f6f8fb; border: 1px solid #ebeff5; border-radius: 12px; padding: 8px 10px; }
 .weather-impact-card .wi-day .d-label { font-size: 13px; color: #5a6b84; }
 .weather-impact-card .wi-day .d-icon  { display: grid; place-items: center; }
 .weather-impact-card .d-temp-hi { font-weight: 700; }
@@ -162,119 +116,93 @@
 
 /* --- view button (top-right of each card) --- */
 .bento-cell-wrapper { position: relative; }
-
 .view-btn {
   position: absolute;
-  top:8px;         /* moved slightly down to align inside */
-  right: 25px;       /* moved further left to avoid spilling out */
+  top:8px; right: 25px;
   padding: 3px 8px;
-  background: rgba(173, 216, 230, 0.7); /* light blue/cyan transparent */
-  color: #0a2a33; /* dark teal text for contrast */
-  border: none;
-  border-radius: 6px;
-  font-size: 11px;
-  font-weight: 600;
-  cursor: pointer;
-  z-index: 2;
+  background: rgba(173, 216, 230, 0.7);
+  color: #0a2a33;
+  border: none; border-radius: 6px;
+  font-size: 11px; font-weight: 600;
+  cursor: pointer; z-index: 2;
   backdrop-filter: blur(4px);
   transition: background 0.15s ease, transform 0.15s ease;
 }
+.view-btn:hover { background: rgba(173, 216, 230, 0.85); transform: translateY(-1px); }
 
-.view-btn:hover {
-  background: rgba(173, 216, 230, 0.85);
-  transform: translateY(-1px);
-}
-
-
-
-/* Modal */
+/* ===== Modal animations (unchanged) ===== */
 .modal-backdrop {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.45);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 999;
-}
-.modal-sheet {
-  background: #fff;
-  border-radius: 12px;
-  width: min(800px, 90vw);
-  max-height: 80vh;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-}
-.modal-header {
-  padding: 12px 16px;
-  background: #f5f6f8;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-.modal-close {
-  background: none;
-  border: none;
-  font-size: 20px;
-  cursor: pointer;
-}
-.modal-body {
-  flex: 1;
-  padding: 20px;
-}
-
-.view-icon {
-  width: 14px;  
-  height: 12px;
-  display: block;
-}
-
-/* ===== Modal animations ===== */
-@keyframes backdropIn {
-  from { opacity: 0; }
-  to   { opacity: 1; }
-}
-@keyframes backdropOut {
-  from { opacity: 1; }
-  to   { opacity: 0; }
-}
-
-@keyframes sheetIn {
-  0%   { transform: translateY(18px) scale(.98); opacity: 0; }
-  100% { transform: translateY(0)    scale(1);   opacity: 1; }
-}
-@keyframes sheetOut {
-  0%   { transform: translateY(0)    scale(1);   opacity: 1; }
-  100% { transform: translateY(18px) scale(.98); opacity: 0; }
-}
-
-/* Enter by default */
-.modal-backdrop {
+  position: fixed; inset: 0; background: rgba(0,0,0,0.45);
+  display: flex; justify-content: center; align-items: center; z-index: 999;
   animation: backdropIn .22s ease forwards;
 }
 .modal-sheet {
+  background: #fff; border-radius: 12px; width: min(800px, 90vw); max-height: 80vh;
+  display: flex; flex-direction: column; overflow: hidden;
   animation: sheetIn .25s cubic-bezier(.2,.7,.2,1) forwards;
 }
+@keyframes backdropIn { from{opacity:0} to{opacity:1} }
+@keyframes backdropOut { from{opacity:1} to{opacity:0} }
+@keyframes sheetIn   { 0%{ transform: translateY(18px) scale(.98); opacity:0 } 100%{ transform: translateY(0) scale(1); opacity:1 } }
+@keyframes sheetOut  { 0%{ transform: translateY(0)   scale(1);   opacity:1 } 100%{ transform: translateY(18px) scale(.98); opacity:0 } }
+.modal-backdrop.closing { animation: backdropOut .22s ease forwards; }
+.modal-sheet.closing { animation: sheetOut .25s cubic-bezier(.2,.7,.2,1) forwards; }
 
-/* Exit when .closing is added */
-.modal-backdrop.closing {
-  animation: backdropOut .22s ease forwards;
-}
-.modal-sheet.closing {
-  animation: sheetOut .25s cubic-bezier(.2,.7,.2,1) forwards;
+/* Shared card title style */
+.card-title-bar { display:flex; align-items:center; justify-content:space-between; padding:10px 14px 0; }
+.card-title { font-weight:700; font-size:14px; color:#111827; }
+
+/* =========================
+   SUPER DRAMATIC LOAD-INS
+   ========================= */
+
+/* The trick: we give each wrapper directional starting vars. */
+.bento-grid .bento-cell-wrapper{
+  --startX: 0px;
+  --startY: 0px;
+  --startRot: 0deg;
+  --startScale: .92;        /* punchier */
+  --blur: 14px;             /* more blur */
+  opacity: 0;
+  transform: translate3d(var(--startX), var(--startY), 0) rotate(var(--startRot)) scale(var(--startScale));
+  filter: blur(var(--blur));
+  transform-origin: 50% 50%;
+  will-change: transform, opacity, filter;
 }
 
-/* Shared card title style (matches Time & Location) */
-.card-title-bar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 10px 14px 0;
+/* Define direction presets */
+.bento-cell-wrapper.dir-left   { --startX: -110px; --startRot: -4deg; }
+.bento-cell-wrapper.dir-right  { --startX:  110px; --startRot:  4deg; }
+.bento-cell-wrapper.dir-top    { --startY: -110px; --startRot:  2deg; }
+.bento-cell-wrapper.dir-bottom { --startY:  110px; --startRot: -2deg; }
+/* extra spice: diagonal */
+.bento-cell-wrapper.dir-diag   { --startX: -120px; --startY: 90px; --startRot: -6deg; }
+
+/* Animate in when grid becomes .is-loaded */
+@keyframes cardIn {
+  0%   { opacity: 0; transform: translate3d(var(--startX), var(--startY), 0) rotate(var(--startRot)) scale(var(--startScale)); filter: blur(var(--blur)); }
+  100% { opacity: 1; transform: translate3d(0,0,0) rotate(0deg) scale(1); filter: blur(0); }
 }
 
-.card-title {
-  font-weight: 700;
-  font-size: 14px;
-  color: #111827;
+.bento-grid.is-loaded .bento-cell-wrapper{
+  animation: cardIn .65s cubic-bezier(.17,.84,.26,1) forwards;
+}
+
+/* Staggered delays (tweak as needed) */
+.bento-grid.is-loaded .bento-cell-wrapper:nth-child(1){ animation-delay: .03s; }
+.bento-grid.is-loaded .bento-cell-wrapper:nth-child(2){ animation-delay: .12s; }
+.bento-grid.is-loaded .bento-cell-wrapper:nth-child(3){ animation-delay: .21s; }
+.bento-grid.is-loaded .bento-cell-wrapper:nth-child(4){ animation-delay: .30s; }
+.bento-grid.is-loaded .bento-cell-wrapper:nth-child(5){ animation-delay: .39s; }
+.bento-grid.is-loaded .bento-cell-wrapper:nth-child(6){ animation-delay: .48s; }
+.bento-grid.is-loaded .bento-cell-wrapper:nth-child(7){ animation-delay: .57s; }
+.bento-grid.is-loaded .bento-cell-wrapper:nth-child(8){ animation-delay: .66s; }
+
+/* Make the big 2x2 tile feel heavier: slightly longer */
+.bento-grid.is-loaded .bento-cell-wrapper.span-big{ animation-duration: .78s; }
+
+/* Respect user's motion settings */
+@media (prefers-reduced-motion: reduce){
+  .bento-grid .bento-cell-wrapper{ opacity:1; transform:none; filter:none; }
+  .bento-grid.is-loaded .bento-cell-wrapper{ animation:none; }
 }

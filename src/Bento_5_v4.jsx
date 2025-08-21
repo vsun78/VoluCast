@@ -36,6 +36,12 @@ export default function Bento_5_v4() {
   const [modalPhase, setModalPhase] = useState("enter");
   const [newsOpen, setNewsOpen] = useState(false);
 
+  const [loaded, setLoaded] = useState(false);
+  useEffect(() => {
+    const id = requestAnimationFrame(() => setLoaded(true));
+    return () => cancelAnimationFrame(id);
+  }, []);
+
   const card2Data = useMemo(() => makeFakeMonth(), []);
 
   // Hard-coded article + local image from /public
@@ -89,14 +95,27 @@ export default function Bento_5_v4() {
     }
   };
 
+  // Choose a dramatic direction per index
+  const dirFor = (i) => {
+    switch (i) {
+      case 0: return "dir-left";     // News card: fly from left
+      case 1: return "dir-top";      // 2x2 feature: drop from top
+      case 2: return "dir-right";    // Time/Location: from right
+      case 3: return "dir-bottom";   // Weather: from bottom
+      case 4: return "dir-diag";     // Oil chart: diagonal
+      default: return "dir-top";
+    }
+  };
+
   return (
     <div className="bento-wrap">
-      <div className="bento-grid">
+      <div className={`bento-grid ${loaded ? "is-loaded" : ""}`}>
         {cells.map((n, i) => {
           const extra = i === 1 ? "span-big" : i === 4 ? "span-last" : "";
           const clickable = hasPopup(i);
+          const dir = dirFor(i);
           return (
-            <div key={n} className={`bento-cell-wrapper ${extra}`}>
+            <div key={n} className={`bento-cell-wrapper ${extra} ${dir}`}>
               <StarBorder
                 as="div"
                 color={i % 2 === 0 ? "cyan" : "violet"}
@@ -113,7 +132,6 @@ export default function Bento_5_v4() {
                   style={clickable ? { cursor: "pointer" } : undefined}
                 >
                   {i === 0 ? (
-                    // News preview card (one top story)
                     <NewsPreview article={demoArticle} />
                   ) : i === 1 ? (
                     <Card2PreviewChart data={card2Data} />
@@ -152,7 +170,7 @@ export default function Bento_5_v4() {
                           display: "flex",
                           alignItems: "center",
                           justifyContent: "center",
-                          padding: "28px 14px 14px", // top padding so chart clears the title
+                          padding: "28px 14px 14px",
                         }}
                       >
                         <OilBarCard weeks={6} height={120} />
