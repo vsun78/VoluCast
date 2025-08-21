@@ -64,19 +64,21 @@ export default function LandingPage() {
           <div className="hero-video-wrap" ref={heroRef}>
             <div className="hero-video-card">
               <VideoText
-  src="/VoluCastLoop.mp4"
+  srcWebm="/VoluCastLoop.webm"
+  srcMp4="/VoluCastLoop.mp4"
+  poster="/VoluCastPoster.jpg"
   className="w-full h-full"
-  fontFamily='-apple-system, system-ui, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Helvetica Neue", "Segoe UI", Roboto, Arial, sans-serif'
+  fontFamily='-apple-system, system-ui, "SF Pro Display", "SF Pro Text", "Helvetica Neue", "Segoe UI", Roboto, Arial, sans-serif'
   fontWeight={900}
   fontScale={0.82}
   fitWidth={0.96}
   videoScale={0.6}
   videoPosition="50% 56%"
-  videoTranslateX={-20}   // left
-  videoTranslateY={-25}      // down
+  videoTranslateX={-20}
+  videoTranslateY={-25}
 >
-                VOLUCAST
-              </VideoText>
+  VOLUCAST
+</VideoText>
 
               <p className="hero-subtitle">
               <em>Tomorrow’s tonnage, today</em>

@@ -1,23 +1,36 @@
+// video-text.jsx
 "use client";
 
 import React, { useEffect, useLayoutEffect, useRef, useState } from "react";
 
 export default function VideoText({
-  src,
+  // Video sources (pass both for fastest start; WebM first for Chrome/FF)
+  srcWebm,                 // e.g., "/VoluCastLoop.webm"
+  srcMp4,                  // e.g., "/VoluCastLoop.mp4"
+  src,                     // legacy single-source (mp4); kept for backward compat
+  poster,                  // e.g., "/VoluCastPoster.jpg"
+
+  // Text + layout
   children,
   className = "",
+  fitWidth = 0.95,         // fraction of container width the text may occupy
+  fontScale = 0.55,        // fraction of container height used for font sizing
+  fontWeight = 900,
+  fontFamily = "Inter, ui-sans-serif",
+
+  // Video placement
+  videoScale = 1.0,        // extra scale on top of min cover
+  videoPosition = "50% 50%",
+  videoTranslateX = 0,     // % nudge after sizing
+  videoTranslateY = 0,     // % nudge after sizing
+
+  // Playback flags
   autoPlay = true,
   muted = true,
   loop = true,
   preload = "auto",
-  fitWidth = 0.95,
-  fontScale = 0.55,
-  fontWeight = 900,
-  fontFamily = "Inter, ui-sans-serif",
-  videoScale = 1.0,
-  videoPosition = "50% 50%",
-  videoTranslateX = 0,
-  videoTranslateY = 0,
+
+  // Wrapper element
   as: Component = "div",
 }) {
   const content = React.Children.toArray(children).join("");
@@ -32,6 +45,7 @@ export default function VideoText({
 
   const clipIdRef = useRef(`video-text-clip-${Math.random().toString(36).slice(2)}`);
 
+  // Resize -> refit + recompute min cover scale
   useEffect(() => {
     if (!wrapRef.current) return;
     const ro = new ResizeObserver(() => {
@@ -42,10 +56,12 @@ export default function VideoText({
     return () => ro.disconnect();
   }, []);
 
+  // Refit when content/params change
   useLayoutEffect(() => {
     sizeToFit();
   }, [content, fontScale, fitWidth]);
 
+  // After metadata loads, we know intrinsic video size -> compute cover scale
   useEffect(() => {
     const v = videoRef.current;
     if (!v) return;
@@ -63,7 +79,6 @@ export default function VideoText({
     const ch = el.clientHeight || 0;
     const vw = v.videoWidth;
     const vh = v.videoHeight;
-
     if (!cw || !ch || !vw || !vh) return;
 
     const scaleToCover = Math.max(cw / vw, ch / vh);
@@ -106,6 +121,11 @@ export default function VideoText({
   }
 
   const effectiveScale = Math.max(videoScale, minCoverScale);
+  const hasWebm = !!srcWebm;
+  const hasMp4 = !!srcMp4 || !!src;
+
+  // Choose mp4 source (prefer explicit prop, fallback to legacy `src`)
+  const mp4Src = srcMp4 || src;
 
   return (
     <Component ref={wrapRef} className={`relative w-full h-full ${className}`}>
@@ -133,7 +153,13 @@ export default function VideoText({
           </clipPath>
         </defs>
 
-        <foreignObject x="0" y="0" width="100%" height="100%" clipPath={`url(#${clipIdRef.current})`}>
+        <foreignObject
+          x="0"
+          y="0"
+          width="100%"
+          height="100%"
+          clipPath={`url(#${clipIdRef.current})`}
+        >
           <div style={{ width: "100%", height: "100%", overflow: "hidden" }}>
             <video
               ref={videoRef}
@@ -144,14 +170,28 @@ export default function VideoText({
                 display: "block",
                 transform: `translate(${videoTranslateX}%, ${videoTranslateY}%) scale(${effectiveScale})`,
                 transformOrigin: "50% 50%",
+                // tiny paint hint helps some browsers
+                willChange: "transform",
               }}
+              // playback
               autoPlay={autoPlay}
               muted={muted}
               loop={loop}
               preload={preload}
               playsInline
+              poster={poster}
+              // kickstart once the browser says it's ready to play through
+              onCanPlayThrough={() => {
+                try {
+                  videoRef.current?.play?.();
+                } catch {}
+              }}
+              onWaiting={() => console.warn("Video waiting (buffering)")}
+              onStalled={() => console.warn("Video stalled (network)")}
+              onError={(e) => console.error("Video error", e.currentTarget.error)}
             >
-              <source src={src} type="video/mp4" />
+              {hasWebm && <source src={srcWebm} type="video/webm" />}
+              {hasMp4 && <source src={mp4Src} type="video/mp4" />}
             </video>
           </div>
         </foreignObject>
