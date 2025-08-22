@@ -151,12 +151,12 @@ export default function Card2ResultsModal({ data: incoming }) {
               <Line
                 type="monotone"
                 dataKey="volume"
-                stroke="#8b5cf6"
+                stroke="#FF0000"
                 strokeWidth={2}
                 dot={false}
                 activeDot={{ r: 4 }}
               />
-              {today && <ReferenceDot x={today.date} y={today.volume} r={5} fill="#8b5cf6" />}
+              {today && <ReferenceDot x={today.date} y={today.volume} r={5} fill="#FF0000" />}
               <Brush dataKey="date" height={22} travellerWidth={8} />
             </LineChart>
           </ResponsiveContainer>

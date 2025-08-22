@@ -108,7 +108,7 @@ export default function OilBarCard({ weeks = 8, height = 140 }) {
             yAxisId="left"
             dataKey="WTI"
             name="WTI Price"
-            fill="#0ea5e9"
+            fill="#FF0000"
             radius={[3, 3, 0, 0]}
             barSize={6}
           />
@@ -116,7 +116,7 @@ export default function OilBarCard({ weeks = 8, height = 140 }) {
             yAxisId="right"
             dataKey="Stocks"
             name="Crude Stocks"
-            fill="#7c3aed"
+            fill="#000000"
             radius={[3, 3, 0, 0]}
             barSize={6}
           />
