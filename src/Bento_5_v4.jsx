@@ -111,7 +111,7 @@ export default function Bento_5_v4() {
     <div className="bento-wrap">
 
       <div className="site-logo">
-        <img src="/mcaiLogo.png" alt="MCAI Logo" />
+        <img src="/mcaiLogo1.png" alt="MCAI Logo" />
       </div>
 
       <div className={`bento-grid ${loaded ? "is-loaded" : ""}`}>
