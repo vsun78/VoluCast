@@ -177,6 +177,19 @@
 /* extra spice: diagonal */
 .bento-cell-wrapper.dir-diag   { --startX: -120px; --startY: 90px; --startRot: -6deg; }
 
+/*  Site Logo  */
+.site-logo {
+  position: fixed;
+  top: 16px;
+  left: 20px;
+  z-index: 1200;            
+}
+
+.site-logo img {
+  height: 100px;               
+  width: auto;
+  display: block;
+}
 
 @keyframes cardIn {
   0%   { opacity: 0; transform: translate3d(var(--startX), var(--startY), 0) rotate(var(--startRot)) scale(var(--startScale)); filter: blur(var(--blur)); }

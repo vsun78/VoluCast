@@ -109,6 +109,11 @@ export default function Bento_5_v4() {
 
   return (
     <div className="bento-wrap">
+
+      <div className="site-logo">
+        <img src="/mcaiLogo.png" alt="MCAI Logo" />
+      </div>
+
       <div className={`bento-grid ${loaded ? "is-loaded" : ""}`}>
         {cells.map((n, i) => {
           const extra = i === 1 ? "span-big" : i === 4 ? "span-last" : "";
