@@ -3,9 +3,9 @@ import "./StarBorder.css";
 const StarBorder = ({
   as: Component = "button",
   className = "",
-  color = "white",
-  speed = "3s",
-  thickness = 1,
+  color = "red",
+  speed = "4s",
+  thickness = 3,
   children,
   ...rest
 }) => {
@@ -21,14 +21,14 @@ const StarBorder = ({
       <div
         className="border-gradient-bottom"
         style={{
-          background: `radial-gradient(circle, ${color}, transparent 10%)`,
+          background: `radial-gradient(circle, rgba(255,0,0,0.6), transparent 30%)`,
           animationDuration: speed,
         }}
       ></div>
       <div
         className="border-gradient-top"
         style={{
-          background: `radial-gradient(circle, ${color}, transparent 10%)`,
+          background: `radial-gradient(circle, rgba(255,0,0,0.6), transparent 30%)`,
           animationDuration: speed,
         }}
       ></div>
