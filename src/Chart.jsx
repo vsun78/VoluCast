@@ -1,6 +1,10 @@
 import React from "react";
 import { BarChart, Bar, ResponsiveContainer } from "recharts";
 
+// testing again
+
+//testing pt 2
+
 // Keep or replace with live data later
 const demo = [
   { period: "2025-06-06", WTI: 77.2 },
