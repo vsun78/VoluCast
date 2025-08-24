@@ -12,8 +12,8 @@ function pctToColor(pct) {
   const t = (clamp(pct, -6, 6) + 6) / 12;
   const L = (a,b,u)=>Math.round(a+(b-a)*u);
   let r,g,b;
-  if (t < 0.5) { const u=t/0.5;  r=L(188, 90,u); g=L(60,96,u);  b=L(60,108,u); }
-  else         { const u=(t-0.5)/0.5; r=L(90,34,u); g=L(96,152,u); b=L(108,92,u); }
+  if (t < 0.5) { const u=t/0.5;  r=L(255,200,u); g=L(170,40,u);  b=L(170,40,u); }
+  else         { const u=(t-0.5)/0.5; r=L(22,160,u); g=L(200,235,u); b=L(120,180,u); }
   return `rgb(${r},${g},${b})`;
 }
 function isLightColor(rgb){
@@ -21,7 +21,7 @@ function isLightColor(rgb){
   return ((0.2126*r+0.7152*g+0.0722*b)/255) > 0.52;
 }
 
-/* ─── Compact Alerts ──────────────────────────────────── */
+/* ─── Alerts ──────────────────────────────────────────── */
 function AnimatedListItem({ children }) {
   return (
     <motion.div
@@ -31,7 +31,6 @@ function AnimatedListItem({ children }) {
       exit={{ opacity: 0, height: 0, marginTop: 0, marginBottom: 0 }}
       transition={{ type: "spring", stiffness: 420, damping: 36 }}
       style={{ overflow: "hidden" }}
-      className="w-full"
     >
       {children}
     </motion.div>
@@ -39,7 +38,7 @@ function AnimatedListItem({ children }) {
 }
 
 const AnimatedList = memo(function AnimatedList({
-  items, delay = 10000, maxVisible = 4, className
+  items, delay = 10000, maxVisible = 4
 }) {
   const [visible, setVisible] = useState([]);
   const idxRef = useRef(0);
@@ -70,8 +69,21 @@ const AnimatedList = memo(function AnimatedList({
     return () => clearInterval(id);
   }, [delay, maxVisible, flat]);
 
+  // Centered 2x2 grid
+  const containerStyle = {
+    display: "grid",
+    gridTemplateColumns: "1fr 1fr",
+    gridTemplateRows: "1fr 1fr",
+    gap: 8,
+    width: "100%",
+    height: "100%",
+    placeItems: "center",         // centers inside panel
+    justifyItems: "center",
+    alignItems: "center"
+  };
+
   return (
-    <motion.div layout className={cn("flex flex-col w-full", className)} style={{ gap: 4 }}>
+    <motion.div layout style={containerStyle}>
       <AnimatePresence initial={false}>
         {visible.map(item => (
           <AnimatedListItem key={item.__id}>
@@ -86,32 +98,34 @@ const AnimatedList = memo(function AnimatedList({
 function Notification({ name, description, icon, color, time }) {
   const card = {
     background: "#fff",
-    borderRadius: 6,
-    padding: 4,
-    border: "1px solid rgba(0,0,0,0.05)",
-    boxShadow: "0 1px 3px rgba(0,0,0,0.04)",
-    minHeight: 30,
+    borderRadius: 8,
+    padding: 6,
+    border: "1px solid rgba(0,0,0,0.06)",
+    boxShadow: "0 1px 3px rgba(0,0,0,0.05)",
+    minHeight: 42,
+    minWidth: 130,
+    boxSizing: "border-box",
   };
   const row = { display: "flex", alignItems: "center", gap: 6, minWidth: 0 };
   const iconBox = {
-    width: 14, height: 14, borderRadius: 9999, backgroundColor: color,
-    display: "flex", alignItems: "center", justifyContent: "center", flex: "0 0 14px"
+    width: 16, height: 16, borderRadius: 9999, backgroundColor: color,
+    display: "flex", alignItems: "center", justifyContent: "center", flex: "0 0 16px"
   };
   const titleRow = {
-    display: "flex", alignItems: "center", gap: 4,
-    fontWeight: 600, fontSize: 10, lineHeight: "14px",
+    display: "flex", alignItems: "center", gap: 6,
+    fontWeight: 700, fontSize: 11,
     color: "#111827", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis",
   };
-  const timeStyle = { color: "#6B7280", fontSize: 9 };
-  const subStyle  = { marginTop: 0, fontSize: 9, color: "#6B7280" };
+  const timeStyle = { color: "#6B7280", fontSize: 10 };
+  const subStyle  = { marginTop: 1, fontSize: 10, color: "#6B7280" };
 
   return (
     <figure style={card}>
       <div style={row}>
-        <div style={iconBox}><span style={{ fontSize: 9 }}>{icon}</span></div>
+        <div style={iconBox}><span style={{ fontSize: 10 }}>{icon}</span></div>
         <div style={{ minWidth: 0, flex: 1 }}>
           <div style={titleRow}>
-            <span style={{ overflow: "hidden", textOverflow: "ellipsis" }}>{name}</span>
+            <span>{name}</span>
             <span style={{ color: "#9CA3AF" }}>·</span>
             <span style={timeStyle}>{time}</span>
           </div>
@@ -162,9 +176,9 @@ function HeatCell({ ticker, name, pct }) {
 
   const cell = {
     gridColumn:`span ${c}`, gridRow:`span ${r}`,
-    background:bg, borderRadius:3, padding:8,
+    background:bg, borderRadius:3, padding:4,
     display:"flex", flexDirection:"column", justifyContent:"space-between",
-    boxShadow:"inset 0 0 0 1px rgba(0,0,0,.04), inset 0 0 0 1px rgba(255,255,255,.05)",
+    boxShadow:"inset 0 0 0 1px rgba(0,0,0,.05), inset 0 0 0 1px rgba(255,255,255,.06)",
     minWidth:0,
   };
   const top = { display:"flex", alignItems:"baseline", justifyContent:"space-between", gap:6, color:light?"#0f1115":"#fff" };
@@ -173,9 +187,9 @@ function HeatCell({ ticker, name, pct }) {
     <div style={cell} title={`${ticker} • ${name} • ${pct>0?"+":""}${pct}%`}>
       <div style={top}>
         <div style={{ fontWeight:800, letterSpacing:.2, fontSize:13 }}>{ticker}</div>
-        <div style={{ fontSize:10, opacity:.8, whiteSpace:"nowrap", overflow:"hidden", textOverflow:"ellipsis" }}>{name}</div>
+        <div style={{ fontSize:10, opacity:.9, whiteSpace:"nowrap", overflow:"hidden", textOverflow:"ellipsis" }}>{name}</div>
       </div>
-      <div style={{ fontWeight:700, fontSize:12, color:light?"#0f1115":"#fff" }}>
+      <div style={{ fontWeight:800, fontSize:12, color:light?"#0f1115":"#fff" }}>
         {pct>0?`+${pct}%`:`${pct}%`}
       </div>
     </div>
@@ -183,32 +197,26 @@ function HeatCell({ ticker, name, pct }) {
 }
 
 function SP500Heatmap({ data=SAMPLE_SP500 }) {
-  const WRAP={ width:"100%", height:"100%", display:"flex", flexDirection:"column" };
-  const TITLE={ textAlign:"center", fontSize:15, fontWeight:700, margin:"2px 0 6px" };
-  const GRID={ flex:1, display:"grid", gridAutoFlow:"dense", gridTemplateColumns:"repeat(18, 1fr)", gridAutoRows:18, gap:2 };
+  const OUTER={ background:"#26282A", borderRadius:8, padding:8, width:"100%", height:"100%", boxSizing:"border-box", display:"flex", flexDirection:"column" };
+  const TITLE={ textAlign:"center", fontSize:15, fontWeight:800, margin:"2px 0 6px", color:"#E6E8EE" };
+  const GRID={ flex:1, display:"grid", gridAutoFlow:"dense", gridTemplateColumns:"repeat(22, 1fr)", gridAutoRows:16, gap:1 };
   return (
-    <div style={WRAP}>
-      <div style={TITLE}>S&P 500 Heatmap (sample)</div>
+    <div style={OUTER}>
+      <div style={TITLE}>S&P 500</div>
       <div style={GRID}>{data.map(d => <HeatCell key={d.ticker} {...d}/>)}</div>
     </div>
   );
 }
 
-/* ─── Layout: Left column (heatmap top, alerts bottom) / Right chart ─── */
+/* ─── Layout ─── */
 export default function CrudeStocksPopup(){
-  const WRAP={
-    width:"100%", height:720, padding:14, boxSizing:"border-box",
-    display:"grid", gridTemplateColumns:"380px 1fr", columnGap:16,
-  };
-  const LEFTGRID={
-    display:"grid", gridTemplateRows:"60% 40%", rowGap:12, height:"100%", minWidth:0,
-  };
+  const WRAP={ width:"100%", height:720, padding:14, boxSizing:"border-box", display:"grid", gridTemplateColumns:"380px 1fr", columnGap:16 };
+  const LEFTGRID={ display:"grid", gridTemplateRows:"60% 40%", rowGap:12, height:"100%", minWidth:0 };
   const panel={ background:"#fff", border:"1px solid rgba(0,0,0,.06)", borderRadius:10, padding:8, display:"flex", flexDirection:"column" };
   const title={ fontSize:16, fontWeight:700, textAlign:"center", marginBottom:8 };
 
   return (
     <div style={WRAP}>
-      {/* LEFT: Heatmap + Alerts */}
       <div style={LEFTGRID}>
         <section style={{ ...panel, padding:8 }}>
           <SP500Heatmap />
@@ -216,19 +224,12 @@ export default function CrudeStocksPopup(){
 
         <section style={{ ...panel }}>
           <h3 style={title}>Live Alerts</h3>
-          {/* Make the alerts area self-contained: compact width, internal scroll if needed */}
-          <div style={{
-            flex:1, display:"flex", justifyContent:"center", alignItems:"flex-start",
-            overflow:"auto"   // keeps within the square if content ever exceeds
-          }}>
-            <div style={{ width: 150 /* even narrower = smaller cards overall */ }}>
-              <AnimatedList items={notifications} delay={10000} maxVisible={4} />
-            </div>
+          <div style={{ flex:1, display:"flex", justifyContent:"center", alignItems:"center" }}>
+            <AnimatedList items={notifications} delay={10000} maxVisible={4} />
           </div>
         </section>
       </div>
 
-      {/* RIGHT: Chart */}
       <section style={{ ...panel }}>
         <h3 style={title}>U.S. Crude Stocks vs WTI (Weekly)</h3>
         <div style={{ flex:1, display:"flex", justifyContent:"center", alignItems:"center" }}>
