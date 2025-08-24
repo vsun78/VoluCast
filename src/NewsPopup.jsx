@@ -18,85 +18,44 @@ export default function NewsPopup({ onClose, articles: external }) {
 
   useEffect(() => {
     if (external) return;
-    const demo = [
-      {
-        id: "a1",
-        title:
-          "Air Canada suspends profit forecast as striking union defies back-to-work order",
-        source: "Reuters",
-        time: "1 hour ago",
-        url: "#",
-        imageUrl:
-          "https://images.unsplash.com/photo-1560523159-4a9692d22236?q=80&w=1200&auto=format&fit=crop",
-      },
-      {
-        id: "a2",
-        title:
-          "Federal labour board deems Air Canada flight attendants' strike ‘unlawful’",
-        source: "CBC",
-        time: "51 minutes ago",
-        url: "#",
-      },
-      {
-        id: "a3",
-        title:
-          "Flight attendants in Montreal protest back-to-work order",
-        source: "CTV News",
-        time: "20 minutes ago",
-        url: "#",
-      },
-      {
-        id: "a4",
-        title:
-          "Air Canada says CIRB ruling is ‘unlawful’ as union vows: ‘Not over’",
-        source: "Global News",
-        time: "26 minutes ago",
-        url: "#",
-      },
-      {
-        id: "b1",
-        title:
-          "Trump–Zelenskyy meeting: What’s the schedule, what’s at stake?",
-        source: "Al Jazeera",
-        time: "3 hours ago",
-        url: "#",
-        imageUrl:
-          "https://images.unsplash.com/photo-1529101091764-c3526daf38fe?q=80&w=1200&auto=format&fit=crop",
-      },
-      {
-        id: "b2",
-        title:
-          "Trump leans on Zelenskyy to end war in social media post ahead of meeting",
-        source: "CBC",
-        time: "3 hours ago",
-        url: "#",
-      },
-      {
-        id: "b3",
-        title:
-          "Meeting expands Russia–Ukraine talks to include Europe: Live updates",
-        source: "CNBC",
-        time: "14 minutes ago",
-        url: "#",
-      },
-      {
-        id: "b4",
-        title:
-          "What each side wants from Ukraine talks at White House",
-        source: "BBC",
-        time: "2 hours ago",
-        url: "#",
-      },
-    ];
-    const t = setTimeout(() => setArticles(demo), 120);
-    return () => clearTimeout(t);
+
+    async function loadNews() {
+      try {
+        const resp = await fetch(
+          `https://gnews.io/api/v4/top-headlines?token=${process.env.REACT_APP_NEWS_API_KEY}&lang=en&country=ca&max=8`
+        );
+        const data = await resp.json();
+        if (data.articles) {
+          const mapped = data.articles.map((a, i) => ({
+            id: i.toString(),
+            title: a.title,
+            source: a.source?.name || "",
+            time: new Date(a.publishedAt).toLocaleString([], {
+              hour: "2-digit",
+              minute: "2-digit",
+              day: "numeric",
+              month: "short",
+            }),
+            url: a.url,
+            imageUrl:
+              a.image || "https://via.placeholder.com/800x450?text=No+Image",
+          }));
+          setArticles(mapped);
+        }
+      } catch (err) {
+        console.error("News fetch error:", err);
+      }
+    }
+
+    loadNews();
   }, [external]);
 
   const rows = useMemo(() => {
     if (!articles) return [];
     const out = [];
-    for (let i = 0; i < articles.length; i += 4)
+    for (let i = 0; i < articles.length; i += 4) {
       out.push(articles.slice(i, i + 4));
+    }
     return out;
   }, [articles]);
 
@@ -198,14 +157,10 @@ function FeatureCard({ a }) {
       </div>
       <div style={{ padding: 16 }}>
         <div style={{ fontSize: 13, opacity: 0.7 }}>{a?.source}</div>
-        <div
-          style={{ marginTop: 6, fontWeight: 700, lineHeight: 1.25 }}
-        >
+        <div style={{ marginTop: 6, fontWeight: 700, lineHeight: 1.25 }}>
           {a?.title}
         </div>
-        <div style={{ marginTop: 6, fontSize: 12, opacity: 0.6 }}>
-          {a?.time}
-        </div>
+        <div style={{ marginTop: 6, fontSize: 12, opacity: 0.6 }}>{a?.time}</div>
       </div>
     </a>
   );
@@ -231,20 +186,14 @@ function SideList({ items }) {
           }}
         >
           <div style={{ fontSize: 13, opacity: 0.7 }}>{a.source}</div>
-          <div
-            style={{ marginTop: 4, fontWeight: 600, lineHeight: 1.25 }}
-          >
+          <div style={{ marginTop: 4, fontWeight: 600, lineHeight: 1.25 }}>
             {a.title}
           </div>
-          <div
-            style={{ marginTop: 4, fontSize: 12, opacity: 0.6 }}
-          >
-            {a.time}
-          </div>
+          <div style={{ marginTop: 4, fontSize: 12, opacity: 0.6 }}>{a.time}</div>
         </a>
       ))}
       <button
-        onClick={() => window.open("#", "_blank")}
+        onClick={() => window.open("https://gnews.io", "_blank")}
         style={{
           alignSelf: "start",
           marginTop: 2,
