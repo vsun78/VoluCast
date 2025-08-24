@@ -11,6 +11,7 @@ import {
   Brush,
   ReferenceDot,
 } from "recharts";
+import { NumberTicker } from "./numberTicker";
 
 function makeFakeMonth() {
   const out = [];
@@ -105,7 +106,17 @@ export default function Card2ResultsModal({ data: incoming }) {
               gap: 8,
             }}
           >
-            <div style={{ fontSize: 36, fontWeight: 800 }}>87%</div>
+            {/* Animated confidence value */}
+            <NumberTicker
+              value={87}
+              startValue={0}
+              decimalPlaces={0}
+              delay={0.2}
+              style={{ fontSize: 36, fontWeight: 800, lineHeight: 1 }}
+            />
+            <span style={{ fontSize: 28, fontWeight: 800, lineHeight: 1 }}>
+              %
+            </span>
             <span style={{ fontSize: 14, color: "#6b7280" }}>for today</span>
           </div>
           <div
@@ -118,9 +129,7 @@ export default function Card2ResultsModal({ data: incoming }) {
               overflow: "hidden",
             }}
           >
-            <div
-              style={{ width: "87%", height: "100%", background: "#34d399" }}
-            />
+            <div style={{ width: "87%", height: "100%", background: "#34d399" }} />
           </div>
           <div style={{ marginTop: 12, fontSize: 14, color: "#4b5563" }}>
             Prediction interval (80%):{" "}
@@ -211,10 +220,7 @@ export default function Card2ResultsModal({ data: incoming }) {
           onPointerDown={stopIfBrush}
         >
           <ResponsiveContainer width="100%" height="100%">
-            <LineChart
-              data={series}
-              margin={{ top: 8, right: 12, bottom: 10, left: 0 }}
-            >
+            <LineChart data={series} margin={{ top: 8, right: 12, bottom: 10, left: 0 }}>
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis
                 dataKey="date"
@@ -228,11 +234,7 @@ export default function Card2ResultsModal({ data: incoming }) {
               />
               <YAxis tick={{ fontSize: 12 }} />
               <Tooltip
-                contentStyle={{
-                  borderRadius: 8,
-                  borderColor: "#e5e7eb",
-                  fontSize: 12,
-                }}
+                contentStyle={{ borderRadius: 8, borderColor: "#e5e7eb", fontSize: 12 }}
                 labelStyle={{ fontWeight: 700 }}
                 labelFormatter={(d) => d.replace(/-/g, "/")}
               />
@@ -244,9 +246,7 @@ export default function Card2ResultsModal({ data: incoming }) {
                 dot={false}
                 activeDot={{ r: 4 }}
               />
-              {today && (
-                <ReferenceDot x={today.date} y={today.volume} r={5} fill="#FF0000" />
-              )}
+              {today && <ReferenceDot x={today.date} y={today.volume} r={5} fill="#FF0000" />}
               <Brush
                 className="vc-brush vc-brush--slate"
                 dataKey="date"
@@ -259,16 +259,8 @@ export default function Card2ResultsModal({ data: incoming }) {
           </ResponsiveContainer>
         </div>
 
-        <div
-          style={{
-            marginTop: 8,
-            fontSize: 12,
-            color: "#6b7280",
-            flex: "0 0 auto",
-          }}
-        >
-          Tip: drag the handles in the scrubber (below) to zoom a window inside
-          the range.
+        <div style={{ marginTop: 8, fontSize: 12, color: "#6b7280", flex: "0 0 auto" }}>
+          Tip: drag the handles in the scrubber (below) to zoom a window inside the range.
         </div>
       </div>
     </div>
