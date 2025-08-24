@@ -44,16 +44,42 @@ export default function Bento_5_v4() {
 
   const card2Data = useMemo(() => makeFakeMonth(), []);
 
-  // Hard-coded article + local image from /public
-  const demoArticle = {
-    id: "a1",
-    title:
-      "Air Canada suspends profit forecast as striking union defies back-to-work order",
-    source: "Reuters",
-    time: "1 hour ago",
-    url: "#",
-    imageUrl: "/airCanada.jpg",
-  };
+  //Live preview article
+  const [previewArticle, setPreviewArticle] = useState(null);
+
+  useEffect(() => {
+    async function loadPreview() {
+      try {
+        const resp = await fetch(
+          `https://gnews.io/api/v4/top-headlines?token=${process.env.REACT_APP_NEWS_API_KEY}&lang=en&country=ca&max=1`
+        );
+        const data = await resp.json();
+        if (data.articles && data.articles.length > 0) {
+          const a = data.articles[0];
+          setPreviewArticle({
+            id: "preview",
+            title: a.title,
+            source: a.source?.name || "",
+            time: new Date(a.publishedAt).toLocaleString([], {
+              hour: "2-digit",
+              minute: "2-digit",
+              day: "numeric",
+              month: "short",
+            }),
+            url: a.url,
+            imageUrl:
+              a.image || "https://via.placeholder.com/600x400?text=No+Image",
+          });
+        }
+      } catch (err) {
+        console.error("Preview news fetch failed:", err);
+      }
+    }
+
+    loadPreview();
+    const id = setInterval(loadPreview, 5 * 60 * 1000); // auto refresh every 5 min
+    return () => clearInterval(id);
+  }, []);
 
   useEffect(() => {
     const onKey = (e) => e.key === "Escape" && startClose();
@@ -98,18 +124,23 @@ export default function Bento_5_v4() {
   // Choose a dramatic direction per index
   const dirFor = (i) => {
     switch (i) {
-      case 0: return "dir-left";     // News card: fly from left
-      case 1: return "dir-top";      // 2x2 feature: drop from top
-      case 2: return "dir-right";    // Time/Location: from right
-      case 3: return "dir-bottom";   // Weather: from bottom
-      case 4: return "dir-diag";     // Oil chart: diagonal
-      default: return "dir-top";
+      case 0:
+        return "dir-left"; // News card: fly from left
+      case 1:
+        return "dir-top"; // 2x2 feature: drop from top
+      case 2:
+        return "dir-right"; // Time/Location: from right
+      case 3:
+        return "dir-bottom"; // Weather: from bottom
+      case 4:
+        return "dir-diag"; // Oil chart: diagonal
+      default:
+        return "dir-top";
     }
   };
 
   return (
     <div className="bento-wrap">
-
       <div className="site-logo">
         <img src="/mcaiLogo1.png" alt="MCAI Logo" />
       </div>
@@ -137,7 +168,7 @@ export default function Bento_5_v4() {
                   style={clickable ? { cursor: "pointer" } : undefined}
                 >
                   {i === 0 ? (
-                    <NewsPreview article={demoArticle} />
+                    <NewsPreview article={previewArticle} />
                   ) : i === 1 ? (
                     <Card2PreviewChart data={card2Data} />
                   ) : i === 3 ? (

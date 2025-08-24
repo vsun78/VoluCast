@@ -1,15 +1,6 @@
 import React, { useEffect } from "react";
 
-/**
- * ModalOverlay
- * - Edge-to-edge friendly modal shell (no max-width clamp, no overflow hidden)
- * - Click outside or press ESC to close.
- *
- * Props:
- *  open: boolean
- *  onClose: () => void
- *  children: ReactNode  (put your popup inside)
- */
+
 export default function ModalOverlay({ open, onClose, children }) {
   useEffect(() => {
     if (!open) return;
