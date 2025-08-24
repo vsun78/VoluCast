@@ -51,7 +51,6 @@ export default function Card2ResultsModal({ data: incoming }) {
   const endDisplay = "2025/09/10";
   const today = series[series.length - 1];
 
-
   const stopIfBrush = (e) => {
     if (e.target && e.target.closest && e.target.closest(".recharts-brush")) {
       e.stopPropagation();
@@ -67,7 +66,7 @@ export default function Card2ResultsModal({ data: incoming }) {
         gap: 16,
         height: "100%",
         alignItems: "stretch",
-        padding: 12,              
+        padding: 12,
         boxSizing: "border-box",
       }}
     >
@@ -77,74 +76,89 @@ export default function Card2ResultsModal({ data: incoming }) {
           flex: "0 0 38%",
           display: "flex",
           flexDirection: "column",
-          gap: 12,
+          gap: 16,
           minHeight: 0,
         }}
       >
         {/* Confidence */}
         <section
           style={{
-            flex: "0 0 40%",
+            flex: "1 1 50%",
             borderRadius: 12,
-            padding: 16,
+            padding: 20,
             background: "#fff",
             boxSizing: "border-box",
-         
             boxShadow: "inset 0 0 0 1px #9ca3af",
             display: "flex",
             flexDirection: "column",
-            justifyContent: "center",
+            justifyContent: "space-around",
           }}
         >
-          <div style={{ fontSize: 12, fontWeight: 600, color: "#6b7280" }}>
+          <div style={{ fontSize: 14, fontWeight: 600, color: "#6b7280" }}>
             Confidence
-          </div>
-          <div style={{ marginTop: 8, display: "flex", alignItems: "baseline", gap: 8 }}>
-            <div style={{ fontSize: 28, fontWeight: 800 }}>87%</div>
-            <span style={{ fontSize: 12, color: "#6b7280" }}>for today</span>
           </div>
           <div
             style={{
               marginTop: 12,
-              height: 8,
+              display: "flex",
+              alignItems: "baseline",
+              gap: 8,
+            }}
+          >
+            <div style={{ fontSize: 36, fontWeight: 800 }}>87%</div>
+            <span style={{ fontSize: 14, color: "#6b7280" }}>for today</span>
+          </div>
+          <div
+            style={{
+              marginTop: 16,
+              height: 10,
               width: "100%",
               background: "#f3f4f6",
               borderRadius: 999,
               overflow: "hidden",
             }}
           >
-            <div style={{ width: "87%", height: "100%", background: "#34d399" }} />
+            <div
+              style={{ width: "87%", height: "100%", background: "#34d399" }}
+            />
           </div>
-          <div style={{ marginTop: 8, fontSize: 12, color: "#4b5563" }}>
+          <div style={{ marginTop: 12, fontSize: 14, color: "#4b5563" }}>
             Prediction interval (80%):{" "}
             <b>{today ? today.volume - 55 : "—"}</b> –{" "}
             <b>{today ? today.volume + 55 : "—"}</b>
           </div>
         </section>
 
-        {/* AI explanation  */}
+        {/* AI explanation */}
         <section
           style={{
-            flex: "0 0 60%",
+            flex: "1 1 50%",
             borderRadius: 12,
-            padding: 16,
+            padding: 20,
             background: "#fff",
             boxSizing: "border-box",
             boxShadow: "inset 0 0 0 1px #9ca3af",
             display: "flex",
             flexDirection: "column",
-            overflow: "auto",
+            justifyContent: "space-between",
           }}
         >
-          <div style={{ fontSize: 12, fontWeight: 600, color: "#6b7280", marginBottom: 6 }}>
+          <div
+            style={{
+              fontSize: 14,
+              fontWeight: 600,
+              color: "#6b7280",
+              marginBottom: 8,
+            }}
+          >
             Why this prediction? (AI explanation)
           </div>
           <ul
             style={{
-              fontSize: 14,
+              fontSize: 15,
               color: "#111827",
-              lineHeight: 1.4,
-              paddingLeft: 18,
+              lineHeight: 1.6,
+              paddingLeft: 20,
               flex: "1 1 auto",
             }}
           >
@@ -153,7 +167,7 @@ export default function Card2ResultsModal({ data: incoming }) {
             <li>Weekday pattern: mid-week volumes typically stronger.</li>
             <li>Prior 7-day trend suggests mild mean-reversion.</li>
           </ul>
-          <div style={{ marginTop: 10, fontSize: 12, color: "#4b5563" }}>
+          <div style={{ marginTop: 12, fontSize: 13, color: "#4b5563" }}>
             What-ifs: <b>No rain (+3–5%)</b>, <b>+5 °C (+1–2%)</b>.
           </div>
         </section>
@@ -191,9 +205,16 @@ export default function Card2ResultsModal({ data: incoming }) {
         </div>
 
         {/* Chart flexes to fill remaining height */}
-        <div style={{ flex: 1, minHeight: 0 }} onClick={stopIfBrush} onPointerDown={stopIfBrush}>
+        <div
+          style={{ flex: 1, minHeight: 0 }}
+          onClick={stopIfBrush}
+          onPointerDown={stopIfBrush}
+        >
           <ResponsiveContainer width="100%" height="100%">
-            <LineChart data={series} margin={{ top: 8, right: 12, bottom: 10, left: 0 }}>
+            <LineChart
+              data={series}
+              margin={{ top: 8, right: 12, bottom: 10, left: 0 }}
+            >
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis
                 dataKey="date"
@@ -207,7 +228,11 @@ export default function Card2ResultsModal({ data: incoming }) {
               />
               <YAxis tick={{ fontSize: 12 }} />
               <Tooltip
-                contentStyle={{ borderRadius: 8, borderColor: "#e5e7eb", fontSize: 12 }}
+                contentStyle={{
+                  borderRadius: 8,
+                  borderColor: "#e5e7eb",
+                  fontSize: 12,
+                }}
                 labelStyle={{ fontWeight: 700 }}
                 labelFormatter={(d) => d.replace(/-/g, "/")}
               />
@@ -219,7 +244,9 @@ export default function Card2ResultsModal({ data: incoming }) {
                 dot={false}
                 activeDot={{ r: 4 }}
               />
-              {today && <ReferenceDot x={today.date} y={today.volume} r={5} fill="#FF0000" />}
+              {today && (
+                <ReferenceDot x={today.date} y={today.volume} r={5} fill="#FF0000" />
+              )}
               <Brush
                 className="vc-brush vc-brush--slate"
                 dataKey="date"
@@ -232,8 +259,16 @@ export default function Card2ResultsModal({ data: incoming }) {
           </ResponsiveContainer>
         </div>
 
-        <div style={{ marginTop: 8, fontSize: 12, color: "#6b7280", flex: "0 0 auto" }}>
-            Tip: drag the handles in the scrubber (below) to zoom a window inside the range.
+        <div
+          style={{
+            marginTop: 8,
+            fontSize: 12,
+            color: "#6b7280",
+            flex: "0 0 auto",
+          }}
+        >
+          Tip: drag the handles in the scrubber (below) to zoom a window inside
+          the range.
         </div>
       </div>
     </div>
