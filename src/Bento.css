@@ -206,6 +206,38 @@
 }
 
 
+.vc-brush .recharts-brush-rect,
+.vc-brush .recharts-brush-slide,
+.vc-brush .recharts-brush rect,
+.vc-brush .recharts-brush-clip rect {
+  rx: 12px !important;
+  ry: 12px !important;
+}
+
+.vc-brush.vc-brush--slate .recharts-brush-rect,
+.vc-brush.vc-brush--slate .recharts-brush-slide {
+  fill: rgba(51, 65, 85, 0.12);
+  stroke: #334155;
+}
+
+.vc-brush .recharts-brush-traveller rect {
+  rx: 12px !important;
+  ry: 12px !important;
+  fill: #334155;
+  stroke: #334155;
+  transition: transform .18s ease, opacity .18s ease;
+}
+
+.vc-brush .recharts-brush-traveller line,
+.vc-brush .recharts-brush-traveller path {
+  stroke-linecap: round;
+}
+
+.vc-brush .recharts-brush-traveller:hover rect { opacity: 0.9; }
+.vc-brush .recharts-brush rect { shape-rendering: geometricPrecision; }
+.vc-brush .recharts-brush-traveller { transition: transform .18s ease; }
+
+
 .bento-grid.is-loaded .bento-cell-wrapper:nth-child(1){ animation-delay: .08s; }
 .bento-grid.is-loaded .bento-cell-wrapper:nth-child(2){ animation-delay: .22s; }
 .bento-grid.is-loaded .bento-cell-wrapper:nth-child(3){ animation-delay: .36s; }
