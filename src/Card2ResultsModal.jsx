@@ -35,9 +35,9 @@ export default function Card2ResultsModal({ data: incoming }) {
     d.setDate(d.getDate() + k);
     return d.toISOString().slice(0, 10);
   });
-  const labelTicks = dates.filter((_, i) => i % 2 === 0);
+  const labelTicks = dates.filter((_, i) => i % 2 === 0); // 09/01, 09/03, ...
 
-  // Dramatic swings
+
   const base10 = raw.slice(-10);
   const series = dates.map((d, i) => {
     const src = base10[i] ?? base10[base10.length - 1] ?? { volume: 320 };
@@ -52,7 +52,6 @@ export default function Card2ResultsModal({ data: incoming }) {
   const endDisplay = "2025/09/10";
   const today = series[series.length - 1];
 
-  // Stop card click only if slider was clicked
   const stopIfBrush = (e) => {
     if (e.target && e.target.closest && e.target.closest(".recharts-brush")) {
       e.stopPropagation();
@@ -60,47 +59,135 @@ export default function Card2ResultsModal({ data: incoming }) {
   };
 
   return (
-    <div className="shared-font" style={{ display: "flex", gap: 16, minHeight: 380, alignItems: "stretch" }}>
+    // Fill the modal-body's height
+    <div
+      className="shared-font"
+      style={{ display: "flex", gap: 16, height: "100%", alignItems: "stretch" }}
+    >
       {/* LEFT COLUMN */}
-      <div style={{ flex: "0 0 38%", display: "flex", flexDirection: "column", gap: 12 }}>
-        <section style={{ border: "1px solid #e5e7eb", borderRadius: 12, padding: 16 }}>
-          <div style={{ fontSize: 12, fontWeight: 600, color: "#6b7280" }}>Confidence</div>
+      <div
+        style={{
+          flex: "0 0 38%",
+          display: "flex",
+          flexDirection: "column",
+          gap: 12,
+          overflow: "hidden",
+          minHeight: 0,
+        }}
+      >
+        {/* Confidence (≈40% of column height) */}
+        <section
+          style={{
+            flex: "0 0 40%",
+            border: "1px solid #e5e7eb",
+            borderRadius: 12,
+            padding: 16,
+            display: "flex",
+            flexDirection: "column",
+            justifyContent: "center",
+          }}
+        >
+          <div style={{ fontSize: 12, fontWeight: 600, color: "#6b7280" }}>
+            Confidence
+          </div>
           <div style={{ marginTop: 8, display: "flex", alignItems: "baseline", gap: 8 }}>
             <div style={{ fontSize: 28, fontWeight: 800 }}>87%</div>
             <span style={{ fontSize: 12, color: "#6b7280" }}>for today</span>
           </div>
-          <div style={{ marginTop: 12, height: 8, width: "100%", background: "#f3f4f6", borderRadius: 999, overflow: "hidden" }}>
+          <div
+            style={{
+              marginTop: 12,
+              height: 8,
+              width: "100%",
+              background: "#f3f4f6",
+              borderRadius: 999,
+              overflow: "hidden",
+            }}
+          >
             <div style={{ width: "87%", height: "100%", background: "#34d399" }} />
           </div>
           <div style={{ marginTop: 8, fontSize: 12, color: "#4b5563" }}>
-            Prediction interval (80%): <b>{today ? today.volume - 55 : "—"}</b> – <b>{today ? today.volume + 55 : "—"}</b>
+            Prediction interval (80%):{" "}
+            <b>{today ? today.volume - 55 : "—"}</b> –{" "}
+            <b>{today ? today.volume + 55 : "—"}</b>
           </div>
         </section>
 
-        <section style={{ border: "1px solid #e5e7eb", borderRadius: 12, padding: 16 }}>
-          <div style={{ fontSize: 12, fontWeight: 600, color: "#6b7280", marginBottom: 6 }}>
+        {/* AI explanation (≈60% of column height) */}
+        <section
+          style={{
+            flex: "0 0 60%",
+            border: "1px solid #e5e7eb",
+            borderRadius: 12,
+            padding: 16,
+            display: "flex",
+            flexDirection: "column",
+            justifyContent: "space-between",
+            overflow: "auto",
+          }}
+        >
+          <div
+            style={{
+              fontSize: 12,
+              fontWeight: 600,
+              color: "#6b7280",
+              marginBottom: 6,
+              flex: "0 0 auto",
+            }}
+          >
             Why this prediction? (AI explanation)
           </div>
-          <ul style={{ fontSize: 14, color: "#111827", lineHeight: 1.4, paddingLeft: 18 }}>
+          <ul
+            style={{
+              fontSize: 14,
+              color: "#111827",
+              lineHeight: 1.4,
+              paddingLeft: 18,
+              flex: "0 1 auto",
+            }}
+          >
             <li>Rain probability ↑ expected to lower hauling efficiency.</li>
             <li>Temperature near seasonal average; minimal thermal impact.</li>
             <li>Weekday pattern: mid-week volumes typically stronger.</li>
             <li>Prior 7-day trend suggests mild mean-reversion.</li>
           </ul>
-          <div style={{ marginTop: 10, fontSize: 12, color: "#4b5563" }}>
+          <div style={{ marginTop: 10, fontSize: 12, color: "#4b5563", flex: "0 0 auto" }}>
             What-ifs: <b>No rain (+3–5%)</b>, <b>+5 °C (+1–2%)</b>.
           </div>
         </section>
       </div>
 
-      {/* RIGHT COLUMN */}
-      <div style={{ flex: "1 1 62%", border: "1px solid #e5e7eb", borderRadius: 12, padding: 12 }}>
-        <div style={{ marginBottom: 8, display: "flex", justifyContent: "space-between", alignItems: "center", fontSize: 14, fontWeight: 600 }}>
+      {/* RIGHT COLUMN — flex, so chart fills vertically */}
+      <div
+        style={{
+          flex: "1 1 62%",
+          border: "1px solid #e5e7eb",
+          borderRadius: 12,
+          padding: 12,
+          display: "flex",
+          flexDirection: "column",
+          minHeight: 0,
+        }}
+      >
+        <div
+          style={{
+            marginBottom: 8,
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            fontSize: 14,
+            fontWeight: 600,
+            flex: "0 0 auto",
+          }}
+        >
           <span>Predicted Volume (Two Weeks Ahead)</span>
-          <span style={{ fontSize: 12, color: "#6b7280" }}>{startDisplay} → {endDisplay}</span>
+          <span style={{ fontSize: 12, color: "#6b7280" }}>
+            {startDisplay} → {endDisplay}
+          </span>
         </div>
 
-        <div style={{ height: 300 }} onClick={stopIfBrush} onPointerDown={stopIfBrush}>
+        {/* Chart flexes to fill remaining height */}
+        <div style={{ flex: 1, minHeight: 0 }} onClick={stopIfBrush} onPointerDown={stopIfBrush}>
           <ResponsiveContainer width="100%" height="100%">
             <LineChart data={series} margin={{ top: 8, right: 12, bottom: 10, left: 0 }}>
               <CartesianGrid strokeDasharray="3 3" />
@@ -115,15 +202,33 @@ export default function Card2ResultsModal({ data: incoming }) {
                 tickFormatter={(d) => d.slice(5).replace("-", "/")}
               />
               <YAxis tick={{ fontSize: 12 }} />
-              <Tooltip contentStyle={{ borderRadius: 8, borderColor: "#e5e7eb", fontSize: 12 }} labelStyle={{ fontWeight: 700 }} labelFormatter={(d) => d.replace(/-/g, "/")} />
-              <Line type="monotone" dataKey="volume" stroke="#FF0000" strokeWidth={2} dot={false} activeDot={{ r: 4 }} />
+              <Tooltip
+                contentStyle={{ borderRadius: 8, borderColor: "#e5e7eb", fontSize: 12 }}
+                labelStyle={{ fontWeight: 700 }}
+                labelFormatter={(d) => d.replace(/-/g, "/")}
+              />
+              <Line
+                type="monotone"
+                dataKey="volume"
+                stroke="#FF0000"
+                strokeWidth={2}
+                dot={false}
+                activeDot={{ r: 4 }}
+              />
               {today && <ReferenceDot x={today.date} y={today.volume} r={5} fill="#FF0000" />}
-              <Brush className="vc-brush vc-brush--slate" dataKey="date" height={26} travellerWidth={12} stroke="#334155" fill="rgba(51,65,85,0.10)" />
+              <Brush
+                className="vc-brush vc-brush--slate"
+                dataKey="date"
+                height={26}
+                travellerWidth={12}
+                stroke="#334155"
+                fill="rgba(51,65,85,0.10)"
+              />
             </LineChart>
           </ResponsiveContainer>
         </div>
 
-        <div style={{ marginTop: 8, fontSize: 12, color: "#6b7280" }}>
+        <div style={{ marginTop: 8, fontSize: 12, color: "#6b7280", flex: "0 0 auto" }}>
           Tip: drag the handles in the scrubber (below) to zoom a window inside the range.
         </div>
       </div>
