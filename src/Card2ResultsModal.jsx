@@ -29,14 +29,13 @@ function makeFakeMonth() {
 export default function Card2ResultsModal({ data: incoming }) {
   const raw = useMemo(() => incoming ?? makeFakeMonth(), [incoming]);
 
-  // Two-week window
+  // Two-week window (09/01–09/10)
   const dates = Array.from({ length: 10 }, (_, k) => {
     const d = new Date("2025-09-01");
     d.setDate(d.getDate() + k);
     return d.toISOString().slice(0, 10);
   });
   const labelTicks = dates.filter((_, i) => i % 2 === 0); // 09/01, 09/03, ...
-
 
   const base10 = raw.slice(-10);
   const series = dates.map((d, i) => {
@@ -52,6 +51,7 @@ export default function Card2ResultsModal({ data: incoming }) {
   const endDisplay = "2025/09/10";
   const today = series[series.length - 1];
 
+
   const stopIfBrush = (e) => {
     if (e.target && e.target.closest && e.target.closest(".recharts-brush")) {
       e.stopPropagation();
@@ -59,10 +59,17 @@ export default function Card2ResultsModal({ data: incoming }) {
   };
 
   return (
-    // Fill the modal-body's height
+    // Fill the modal-body's height and keep borders off the edges
     <div
       className="shared-font"
-      style={{ display: "flex", gap: 16, height: "100%", alignItems: "stretch" }}
+      style={{
+        display: "flex",
+        gap: 16,
+        height: "100%",
+        alignItems: "stretch",
+        padding: 12,              
+        boxSizing: "border-box",
+      }}
     >
       {/* LEFT COLUMN */}
       <div
@@ -71,17 +78,19 @@ export default function Card2ResultsModal({ data: incoming }) {
           display: "flex",
           flexDirection: "column",
           gap: 12,
-          overflow: "hidden",
           minHeight: 0,
         }}
       >
-        {/* Confidence (≈40% of column height) */}
+        {/* Confidence */}
         <section
           style={{
             flex: "0 0 40%",
-            border: "1px solid #e5e7eb",
             borderRadius: 12,
             padding: 16,
+            background: "#fff",
+            boxSizing: "border-box",
+         
+            boxShadow: "inset 0 0 0 1px #9ca3af",
             display: "flex",
             flexDirection: "column",
             justifyContent: "center",
@@ -113,28 +122,21 @@ export default function Card2ResultsModal({ data: incoming }) {
           </div>
         </section>
 
-        {/* AI explanation (≈60% of column height) */}
+        {/* AI explanation  */}
         <section
           style={{
             flex: "0 0 60%",
-            border: "1px solid #e5e7eb",
             borderRadius: 12,
             padding: 16,
+            background: "#fff",
+            boxSizing: "border-box",
+            boxShadow: "inset 0 0 0 1px #9ca3af",
             display: "flex",
             flexDirection: "column",
-            justifyContent: "space-between",
             overflow: "auto",
           }}
         >
-          <div
-            style={{
-              fontSize: 12,
-              fontWeight: 600,
-              color: "#6b7280",
-              marginBottom: 6,
-              flex: "0 0 auto",
-            }}
-          >
+          <div style={{ fontSize: 12, fontWeight: 600, color: "#6b7280", marginBottom: 6 }}>
             Why this prediction? (AI explanation)
           </div>
           <ul
@@ -143,7 +145,7 @@ export default function Card2ResultsModal({ data: incoming }) {
               color: "#111827",
               lineHeight: 1.4,
               paddingLeft: 18,
-              flex: "0 1 auto",
+              flex: "1 1 auto",
             }}
           >
             <li>Rain probability ↑ expected to lower hauling efficiency.</li>
@@ -151,19 +153,21 @@ export default function Card2ResultsModal({ data: incoming }) {
             <li>Weekday pattern: mid-week volumes typically stronger.</li>
             <li>Prior 7-day trend suggests mild mean-reversion.</li>
           </ul>
-          <div style={{ marginTop: 10, fontSize: 12, color: "#4b5563", flex: "0 0 auto" }}>
+          <div style={{ marginTop: 10, fontSize: 12, color: "#4b5563" }}>
             What-ifs: <b>No rain (+3–5%)</b>, <b>+5 °C (+1–2%)</b>.
           </div>
         </section>
       </div>
 
-      {/* RIGHT COLUMN — flex, so chart fills vertically */}
+      {/* RIGHT COLUMN — chart panel */}
       <div
         style={{
           flex: "1 1 62%",
-          border: "1px solid #e5e7eb",
           borderRadius: 12,
           padding: 12,
+          background: "#fff",
+          boxSizing: "border-box",
+          boxShadow: "inset 0 0 0 1px #9ca3af",
           display: "flex",
           flexDirection: "column",
           minHeight: 0,
@@ -229,7 +233,7 @@ export default function Card2ResultsModal({ data: incoming }) {
         </div>
 
         <div style={{ marginTop: 8, fontSize: 12, color: "#6b7280", flex: "0 0 auto" }}>
-          Tip: drag the handles in the scrubber (below) to zoom a window inside the range.
+            Tip: drag the handles in the scrubber (below) to zoom a window inside the range.
         </div>
       </div>
     </div>
