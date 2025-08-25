@@ -78,7 +78,7 @@ export default function Card2PreviewChart({ data = [] }) {
             <Tooltip contentStyle={{ borderRadius: 8, borderColor: "#e5e7eb", fontSize: 12 }} labelStyle={{ fontWeight: 700 }} labelFormatter={(d) => d.replace(/-/g, "/")} />
             <Line type="monotone" dataKey="volume" stroke="#FF0000" strokeWidth={2} dot={false} activeDot={{ r: 4 }} />
             {today && <ReferenceDot x={today.date} y={today.volume} r={5} fill="#FF0000" />}
-            <Brush className="vc-brush vc-brush--slate" dataKey="date" height={26} travellerWidth={12} stroke="#334155" fill="rgba(51,65,85,0.10)" />
+            <Brush className="vc-brush vc-brush--slate" dataKey="date" height={26} travellerWidth={3} stroke="#334155" fill="rgba(51,65,85,0.10)" />
           </LineChart>
         </ResponsiveContainer>
       </div>

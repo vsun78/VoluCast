@@ -77,7 +77,7 @@ export default function Bento_5_v4() {
     }
 
     loadPreview();
-    const id = setInterval(loadPreview, 60 * 60 * 1000); // auto refresh every 5 min
+    const id = setInterval(loadPreview, 60 * 60 * 1000); // auto refresh every 60 min
     return () => clearInterval(id);
   }, []);
 

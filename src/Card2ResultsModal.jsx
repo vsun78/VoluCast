@@ -251,7 +251,7 @@ export default function Card2ResultsModal({ data: incoming }) {
                 className="vc-brush vc-brush--slate"
                 dataKey="date"
                 height={26}
-                travellerWidth={12}
+                travellerWidth={3}
                 stroke="#334155"
                 fill="rgba(51,65,85,0.10)"
               />
