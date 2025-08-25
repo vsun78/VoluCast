@@ -19,7 +19,47 @@ function isLightColor(rgb){
   return ((0.2126*r+0.7152*g+0.0722*b)/255) > 0.52;
 }
 
-/* ─── Alerts*/
+/* ─── Market alert theming helpers ───────────────────── */
+function variantFromDelta(deltaPct) {
+  if (deltaPct > 0) return "bullish";
+  if (deltaPct < 0) return "bearish";
+  return "neutral";
+}
+function themeFor(variant) {
+  switch (variant) {
+    case "bullish":
+      return {
+        accent: "#16a34a", // green-600
+        bgSoft: "rgba(22,163,74,0.08)",
+        text: "#064e3b",   // green-900
+        icon: "▲",
+        pillBg: "rgba(22,163,74,0.12)",
+        pillText: "#065f46",
+      };
+    case "bearish":
+      return {
+        accent: "#dc2626", // red-600
+        bgSoft: "rgba(220,38,38,0.08)",
+        text: "#7f1d1d",   // red-900
+        icon: "▼",
+        pillBg: "rgba(220,38,38,0.12)",
+        pillText: "#7f1d1d",
+      };
+    default:
+      return {
+        accent: "#6b7280", // gray-500
+        bgSoft: "rgba(107,114,128,0.08)",
+        text: "#111827",
+        icon: "•",
+        pillBg: "rgba(107,114,128,0.12)",
+        pillText: "#374151",
+      };
+  }
+}
+
+/* ─── Alerts 
+
+--------------------------------------------------------- */
 const AnimatedList = memo(function AnimatedList({
   items, delay = 10000, maxVisible = 4
 }) {
@@ -28,7 +68,7 @@ const AnimatedList = memo(function AnimatedList({
     const seed = Array.from({ length: maxVisible }, (_, i) => ({
       slot: i,
       data: safeItems[i % Math.max(1, safeItems.length)] || {},
-      token: 0, // bumps to trigger a small fade-in when content changes
+      token: 0,
     }));
     return seed;
   });
@@ -41,7 +81,6 @@ const AnimatedList = memo(function AnimatedList({
       const nextRaw = safeItems[nextIdx.current % safeItems.length];
       nextIdx.current += 1;
 
-      
       setSlots(prev => {
         const out = prev.map(s => ({ ...s }));
         for (let i = maxVisible - 1; i > 0; i--) out[i].data = prev[i - 1].data;
@@ -54,7 +93,6 @@ const AnimatedList = memo(function AnimatedList({
     return () => clearInterval(id);
   }, [safeItems, delay, maxVisible]);
 
-  
   const containerStyle = {
     display: "grid",
     gridTemplateRows: `repeat(${maxVisible}, 1fr)`,
@@ -67,7 +105,6 @@ const AnimatedList = memo(function AnimatedList({
     <div style={containerStyle}>
       {slots.map(s => (
         <div key={s.slot} style={{ display: "flex" }}>
-          
           <motion.div
             key={s.token}
             initial={{ opacity: 0, y: -6 }}
@@ -83,12 +120,44 @@ const AnimatedList = memo(function AnimatedList({
   );
 });
 
-function Notification({ name, description, icon, color, time }) {
+function Sparkline({ points = [], stroke = "#6b7280" }) {
+  if (!points.length) return null;
+  const w = 60, h = 18;
+  const min = Math.min(...points), max = Math.max(...points);
+  const span = max - min || 1;
+  const path = points
+    .map((v, i) => {
+      const x = (i / (points.length - 1)) * (w - 2) + 1;
+      const y = h - ((v - min) / span) * (h - 2) - 1;
+      return `${i ? "L" : "M"}${x.toFixed(1)},${y.toFixed(1)}`;
+    })
+    .join(" ");
+
+  return (
+    <svg width={w} height={h} style={{ display: "block" }}>
+      <path d={path} fill="none" stroke={stroke} strokeWidth="1.5" />
+    </svg>
+  );
+}
+
+function Notification({
+  // Market-themed fields (add these when you build alerts)
+  ticker = "WTI",
+  price,            // number | string
+  deltaPct = 0,     // e.g., +1.23 or -0.85
+  spark = [],       // tiny series for sparkline
+  // legacy fields kept for compatibility
+  name, description, icon, color, time = "now",
+  variant: variantIn,
+}) {
+  // Choose variant from explicit prop or calculate from delta
+  const variant = variantIn || variantFromDelta(Number(deltaPct) || 0);
+  const theme = themeFor(variant);
 
   const card = {
     background: "#fff",
-    borderRadius: 6,
-    padding: 2,
+    borderRadius: 8,
+    padding: 6,
     border: "1px solid rgba(0,0,0,0.06)",
     boxShadow: "0 1px 2px rgba(0,0,0,0.04)",
     flex: 1,
@@ -96,46 +165,115 @@ function Notification({ name, description, icon, color, time }) {
     alignItems: "center",
     width: "100%",
     boxSizing: "border-box",
+    position: "relative",
+    overflow: "hidden",
   };
-  const row = { display: "flex", alignItems: "center", gap: 6, minWidth: 0, width: "100%" };
-  const iconBox = {
-    width: 12, height: 12, borderRadius: 9999, backgroundColor: color,
-    display: "flex", alignItems: "center", justifyContent: "center", flex: "0 0 12px"
+
+  const accentBar = {
+    position: "absolute",
+    left: 0,
+    top: 0,
+    bottom: 0,
+    width: 3,
+    background: theme.accent,
   };
+
+  const row = { display: "flex", alignItems: "center", gap: 8, minWidth: 0, width: "100%" };
+
+  const badge = {
+    fontWeight: 800,
+    fontSize: 10,
+    letterSpacing: 0.2,
+    padding: "2px 6px",
+    borderRadius: 9999,
+    background: theme.bgSoft,
+    color: theme.text,
+    border: `1px solid ${theme.accent}22`,
+    textTransform: "uppercase",
+    flexShrink: 0,
+  };
+
   const titleRow = {
-    display: "flex", alignItems: "center", gap: 4,
-    fontWeight: 600, fontSize: 9,
-    color: "#111827", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis",
+    display: "flex",
+    alignItems: "center",
+    gap: 6,
+    fontWeight: 700,
+    fontSize: 10,
+    color: "#111827",
+    whiteSpace: "nowrap",
+    overflow: "hidden",
+    textOverflow: "ellipsis",
   };
-  const timeStyle = { color: "#6B7280", fontSize: 8 };
-  const subStyle  = { marginTop: 1, fontSize: 8, color: "#6B7280" };
+  const timeStyle = { color: "#6B7280", fontSize: 9, flexShrink: 0 };
+
+  const right = { marginLeft: "auto", display: "flex", alignItems: "center", gap: 8 };
+
+  const priceStyle = {
+    fontVariantNumeric: "tabular-nums",
+    fontWeight: 700,
+    fontSize: 11,
+    color: "#111827",
+  };
+
+  const pill = {
+    fontVariantNumeric: "tabular-nums",
+    fontWeight: 700,
+    fontSize: 10,
+    padding: "2px 6px",
+    borderRadius: 9999,
+    background: theme.pillBg,
+    color: theme.pillText,
+    border: `1px solid ${theme.accent}33`,
+  };
+
+  const sparkStroke = variant === "bullish" ? "#16a34a" : variant === "bearish" ? "#dc2626" : "#6b7280";
+
+  // Fallbacks for legacy alerts: map name/description/color into market look
+  const fallbackTicker = ticker || (name ? name.split(" ")[0].toUpperCase() : "WTI");
+  const fallbackDesc = description || (name ? name.replace(fallbackTicker, "").trim() : "Alert");
 
   return (
     <figure style={card}>
+      <div style={accentBar} />
       <div style={row}>
-        <div style={iconBox}><span style={{ fontSize: 8 }}>{icon}</span></div>
-        <div style={{ minWidth: 0, flex: 1 }}>
+        <span style={badge}>{fallbackTicker}</span>
+
+        <div style={{ minWidth: 0 }}>
           <div style={titleRow}>
-            <span>{name}</span>
+            <span>{fallbackDesc || "Market Alert"}</span>
             <span style={{ color: "#9CA3AF" }}>·</span>
             <span style={timeStyle}>{time}</span>
           </div>
-          <p style={subStyle}>{description || "Magic UI"}</p>
+          
+          {!!(spark && spark.length >= 2) && (
+            <div style={{ marginTop: 2 }}>
+              <Sparkline points={spark} stroke={sparkStroke} />
+            </div>
+          )}
+        </div>
+
+        <div style={right}>
+          {price != null && <span style={priceStyle}>{String(price)}</span>}
+          <span style={pill}>
+            {theme.icon} {Number(deltaPct) > 0 ? "+" : ""}{Number(deltaPct).toFixed(2)}%
+          </span>
         </div>
       </div>
     </figure>
   );
 }
 
-/* ─── Alerts seed data  */
-const baseNotifications = [
-  { name: "New message",     description: "Magic UI", time: "5m ago",  icon: "💬", color: "#FF3D71" },
-  { name: "Payment received", description: "Magic UI", time: "15m ago", icon: "💸", color: "#00C9A7" },
-  { name: "User signed up",   description: "Magic UI", time: "10m ago", icon: "👤", color: "#FFB800" },
-];
-const notifications = Array.from({ length: 12 }, () => baseNotifications).flat();
 
-/* ─── Heatmap  */
+const notifications = [
+  { ticker: "WTI",  price: "$78.42", deltaPct: +1.36, time: "2m ago",  spark: [76.9,77.2,77.8,77.3,78.0,78.4] },
+  { ticker: "BRENT",price: "$82.11", deltaPct: -0.42, time: "5m ago",  spark: [82.6,82.4,82.2,82.3,82.1] },
+  { ticker: "XOM",  price: "$114.07", deltaPct: +0.85, time: "7m ago", spark: [112.9,113.4,113.9,113.6,114.1] },
+  { ticker: "CVX",  price: "$159.22", deltaPct: -1.12, time: "12m ago", spark: [160.8,160.1,159.9,159.6,159.2] },
+  { ticker: "NG",   price: "$2.68", deltaPct: +2.01, time: "14m ago", spark: [2.61,2.63,2.64,2.66,2.68] },
+  { ticker: "OXY",  price: "$67.34", deltaPct: +0.22, time: "18m ago", spark: [67.0,67.1,67.3,67.2,67.34] },
+];
+
+/* ─── Heatmap*/
 const SAMPLE_SP500 = [
   { ticker:"AAPL", name:"Apple", pct:-1.8 }, { ticker:"MSFT", name:"Microsoft", pct:-0.9 },
   { ticker:"NVDA", name:"NVIDIA", pct:2.2 }, { ticker:"GOOG", name:"Alphabet", pct:-1.3 },
@@ -203,7 +341,6 @@ function SP500Heatmap({ data=SAMPLE_SP500 }) {
 /* ─── Layout ─── */
 export default function CrudeStocksPopup(){
   const WRAP={ width:"100%", height:720, padding:14, boxSizing:"border-box", display:"grid", gridTemplateColumns:"380px 1fr", columnGap:16 };
-
   const LEFTGRID={ display:"grid", gridTemplateRows:"55% 45%", rowGap:12, height:"100%", minWidth:0 };
   const panel={ background:"#fff", border:"1px solid rgba(0,0,0,.06)", borderRadius:10, padding:8, display:"flex", flexDirection:"column" };
   const title={ fontSize:16, fontWeight:700, textAlign:"center", marginBottom:8 };
@@ -218,7 +355,7 @@ export default function CrudeStocksPopup(){
         <section style={{ ...panel }}>
           <h3 style={title}>Live Alerts</h3>
           <div style={{ flex:1 }}>
-            <AnimatedList items={notifications} delay={10000} maxVisible={4} />
+            <AnimatedList items={notifications} delay={8000} maxVisible={4} />
           </div>
         </section>
       </div>
