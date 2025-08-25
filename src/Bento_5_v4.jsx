@@ -14,6 +14,9 @@ import NewsPreview from "./Components/NewsPreview";
 import ModalOverlay from "./ModalOverlay";
 import NewsPopup from "./NewsPopup"; // news/politics content
 
+
+import InfiniteMenu from "./InfiniteMenu"; 
+
 const cells = [1, 2, 3, 4, 5];
 export const Cell = ({ i = 0 }) => <div className="fallback-cell">Card {i}</div>;
 
@@ -30,6 +33,34 @@ function makeFakeMonth() {
   }
   return out;
 }
+
+// 4 item options for the InfiniteMenu 
+const tlMenuItems = [
+  {
+    image: "https://picsum.photos/seed/toronto/900/900",
+    title: "Toronto, ON",
+    description: "Downtown core & GTA",
+    link: "#toronto",
+  },
+  {
+    image: "https://picsum.photos/seed/ottawa/900/900",
+    title: "Ottawa, ON",
+    description: "Capital region",
+    link: "#ottawa",
+  },
+  {
+    image: "https://picsum.photos/seed/kingston/900/900",
+    title: "Kingston, ON",
+    description: "Limestone City",
+    link: "#kingston",
+  },
+  {
+    image: "https://picsum.photos/seed/hamilton/900/900",
+    title: "Hamilton, ON",
+    description: "Bayfront & steel",
+    link: "#hamilton",
+  },
+];
 
 export default function Bento_5_v4() {
   const [activeModal, setActiveModal] = useState(null);
@@ -97,13 +128,14 @@ export default function Bento_5_v4() {
     }
   }, [activeModal]);
 
-  // Which cards have popups?
-  const hasPopup = (i) => i === 0 || i === 1 || i === 4;
+ 
+  const hasPopup = (i) => i === 0 || i === 1 || i === 2 || i === 4;
 
-  // Open the appropriate popup for a card
+  // Open the appropriate popup for a card  (ADDED: case for i === 2)
   const openForIndex = (i) => {
     if (i === 0) setNewsOpen(true);
     else if (i === 1) setActiveModal(1);
+    else if (i === 2) setActiveModal(2); // Time & Location → InfiniteMenu
     else if (i === 4) setActiveModal(4);
   };
 
@@ -199,7 +231,7 @@ export default function Bento_5_v4() {
                         WTI &amp; U.S. Crude Stocks
                       </div>
 
-                      {/* Chart centered */}
+                     
                       <div
                         style={{
                           flex: 1,
@@ -227,7 +259,7 @@ export default function Bento_5_v4() {
         <NewsPopup onClose={() => setNewsOpen(false)} />
       </ModalOverlay>
 
-      {/* Existing modal flow for the other cards */}
+      
       {activeModal !== null && (
         <div
           className={`modal-backdrop ${modalPhase === "exit" ? "closing" : ""}`}
@@ -242,6 +274,12 @@ export default function Bento_5_v4() {
             <div className="modal-body">
               {activeModal === 1 ? (
                 <Card2ResultsModal data={card2Data} />
+              ) : activeModal === 2 ? (
+                
+                  <div style={{ flex: 1, minHeight: 0 }}>
+                    <InfiniteMenu items={tlMenuItems} />
+                  </div>
+                
               ) : activeModal === 4 ? (
                 <CrudeStocksPopup />
               ) : (
