@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   LineChart,
   Line,
@@ -11,7 +11,7 @@ import {
 } from "recharts";
 
 export default function Card2PreviewChart({ data = [] }) {
-
+  // Sept 01 -> Sept 07
   const dates = Array.from({ length: 7 }, (_, k) => {
     const d = new Date("2025-09-01");
     d.setDate(d.getDate() + k);
@@ -24,7 +24,7 @@ export default function Card2PreviewChart({ data = [] }) {
     "#06b6d4", "#dc2626", "#16a34a", "#ea580c",
   ];
 
-
+  // Seed + synth data for 9 locations
   const base7 = (data.length ? data : [{ volume: 320 }]).slice(-7);
   const rows = dates.map((date, i) => {
     const point = { date };
@@ -44,6 +44,14 @@ export default function Card2PreviewChart({ data = [] }) {
 
   const startDisplay = "2025/09/01";
   const endDisplay = "2025/09/07";
+
+  // Dropdown selection
+  const [selectedKey, setSelectedKey] = useState("ALL"); // "ALL" | "loc1".."loc9"
+
+  // Prevent dropdown interactions from launching the parent popup
+  const stop = (e) => {
+    e.stopPropagation();
+  };
 
   const stopIfBrush = (e) => {
     if (e.target && e.target.closest && e.target.closest(".recharts-brush")) {
@@ -67,9 +75,43 @@ export default function Card2PreviewChart({ data = [] }) {
         justifyContent: "center",
       }}
     >
-      <div style={{ marginBottom: 12, display: "flex", justifyContent: "space-between", alignItems: "center", fontSize: 14, fontWeight: 600 }}>
+      {/* Header with title  dropdown dates */}
+      <div
+        style={{
+          marginBottom: 12,
+          display: "flex",
+          alignItems: "center",
+          gap: 12,
+          fontSize: 14,
+          fontWeight: 600,
+        }}
+      >
         <span>Predicted Sales Volume by Location</span>
-        <span style={{ fontSize: 12, color: "#6b7280" }}>{startDisplay} → {endDisplay}</span>
+
+        <select
+          value={selectedKey}
+          onChange={(e) => setSelectedKey(e.target.value)}
+          onClick={stop}
+          onMouseDown={stop}
+          onPointerDown={stop}
+          onKeyDown={(e) => { if (e.key !== "Tab") stop(e); }}
+          style={{
+            fontSize: 12,
+            padding: "4px 8px",
+            borderRadius: 8,
+            border: "1px solid #e5e7eb",
+            background: "#fff",
+          }}
+        >
+          <option value="ALL">All Locations</option>
+          {Array.from({ length: 9 }, (_, i) => (
+            <option key={i} value={`loc${i + 1}`}>{`Location ${i + 1}`}</option>
+          ))}
+        </select>
+
+        <span style={{ marginLeft: "auto", fontSize: 12, color: "#6b7280" }}>
+          {startDisplay} → {endDisplay}
+        </span>
       </div>
 
       <div style={{ flex: 1, minHeight: 300 }}>
@@ -93,23 +135,42 @@ export default function Card2PreviewChart({ data = [] }) {
               labelFormatter={(d) => d.replace(/-/g, "/")}
               formatter={(value, name) => [value, name]}
             />
-            {Array.from({ length: 9 }, (_, k) => (
-              <Line
-                key={k}
-                type="monotone"
-                dataKey={`loc${k + 1}`}
-                name={`Location ${k + 1}`}
-                stroke={colors[k]}
-                strokeWidth={2}
-                dot={false}
-                activeDot={{ r: 3.5 }}
-                
-                isAnimationActive={true}
-                animationDuration={650}
-                animationEasing="ease-out"
-              />
-            ))}
-            <Brush className="vc-brush vc-brush--slate" dataKey="date" height={26} travellerWidth={3} stroke="#334155" fill="rgba(51,65,85,0.10)" />
+
+            {(selectedKey === "ALL"
+              ? Array.from({ length: 9 }, (_, k) => `loc${k + 1}`)
+              : [selectedKey]
+            ).map((key, idx) => {
+              const colorIdx =
+                key === "ALL" ? idx : parseInt(key.replace("loc", ""), 10) - 1;
+              return (
+                <Line
+                  key={key + idx}
+                  type="monotone"
+                  dataKey={key}
+                  name={
+                    key === "ALL"
+                      ? `Location ${idx + 1}`
+                      : `Location ${parseInt(key.replace("loc", ""), 10)}`
+                  }
+                  stroke={colors[colorIdx]}
+                  strokeWidth={2}
+                  dot={false}
+                  activeDot={{ r: 3.5 }}
+                  isAnimationActive={true}
+                  animationDuration={650}
+                  animationEasing="ease-out"
+                />
+              );
+            })}
+
+            <Brush
+              className="vc-brush vc-brush--slate"
+              dataKey="date"
+              height={26}
+              travellerWidth={3}
+              stroke="#334155"
+              fill="rgba(51,65,85,0.10)"
+            />
           </LineChart>
         </ResponsiveContainer>
       </div>
