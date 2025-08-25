@@ -30,13 +30,13 @@ function makeFakeMonth() {
 export default function Card2ResultsModal({ data: incoming }) {
   const raw = useMemo(() => incoming ?? makeFakeMonth(), [incoming]);
 
-  // Two-week window (09/01–09/10)
-  const dates = Array.from({ length: 10 }, (_, k) => {
+  // One-week window 
+  const dates = Array.from({ length: 7 }, (_, k) => {
     const d = new Date("2025-09-01");
     d.setDate(d.getDate() + k);
     return d.toISOString().slice(0, 10);
   });
-  const labelTicks = dates.filter((_, i) => i % 2 === 0); // 09/01, 09/03, ...
+  const labelTicks = dates;
 
   const base10 = raw.slice(-10);
   const series = dates.map((d, i) => {
@@ -49,7 +49,7 @@ export default function Card2ResultsModal({ data: incoming }) {
   });
 
   const startDisplay = "2025/09/01";
-  const endDisplay = "2025/09/10";
+  const endDisplay = "2025/09/07";
   const today = series[series.length - 1];
 
   const stopIfBrush = (e) => {

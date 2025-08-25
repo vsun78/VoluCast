@@ -12,12 +12,12 @@ import {
 } from "recharts";
 
 export default function Card2PreviewChart({ data = [] }) {
-  const dates = Array.from({ length: 10 }, (_, k) => {
+  const dates = Array.from({ length: 7 }, (_, k) => {
     const d = new Date("2025-09-01");
     d.setDate(d.getDate() + k);
     return d.toISOString().slice(0, 10);
   });
-  const labelTicks = dates.filter((_, i) => i % 2 === 0);
+  const labelTicks = dates;
 
   const base10 = data.slice(-10);
   const series = dates.map((d, i) => {
@@ -30,7 +30,7 @@ export default function Card2PreviewChart({ data = [] }) {
   });
 
   const startDisplay = "2025/09/01";
-  const endDisplay = "2025/09/10";
+  const endDisplay = "2025/09/07";
   const today = series[series.length - 1];
 
   const stopIfBrush = (e) => {
