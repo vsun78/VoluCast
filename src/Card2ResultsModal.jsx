@@ -207,7 +207,7 @@ export default function Card2ResultsModal({ data: incoming }) {
             flex: "0 0 auto",
           }}
         >
-          <span>Predicted Sales Volume (Two Weeks Ahead)</span>
+          <span>Predicted Sales Volume (One Week Ahead)</span>
           <span style={{ fontSize: 12, color: "#6b7280" }}>
             {startDisplay} → {endDisplay}
           </span>

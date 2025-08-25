@@ -56,7 +56,7 @@ export default function Card2PreviewChart({ data = [] }) {
       }}
     >
       <div style={{ marginBottom: 12, display: "flex", justifyContent: "space-between", alignItems: "center", fontSize: 14, fontWeight: 600 }}>
-        <span>Predicted Sales Volume (Two Weeks Ahead)</span>
+        <span>Predicted Sales Volume (One Week Ahead)</span>
         <span style={{ fontSize: 12, color: "#6b7280" }}>{startDisplay} → {endDisplay}</span>
       </div>
 
