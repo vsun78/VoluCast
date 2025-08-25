@@ -9,7 +9,6 @@ import {
   CartesianGrid,
   ResponsiveContainer,
   Brush,
-  ReferenceDot,
 } from "recharts";
 import { NumberTicker } from "./numberTicker";
 
@@ -30,7 +29,7 @@ function makeFakeMonth() {
 export default function Card2ResultsModal({ data: incoming }) {
   const raw = useMemo(() => incoming ?? makeFakeMonth(), [incoming]);
 
-  // One-week window 
+  // Sept 01 -> Sept 07 
   const dates = Array.from({ length: 7 }, (_, k) => {
     const d = new Date("2025-09-01");
     d.setDate(d.getDate() + k);
@@ -38,19 +37,32 @@ export default function Card2ResultsModal({ data: incoming }) {
   });
   const labelTicks = dates;
 
-  const base10 = raw.slice(-10);
-  const series = dates.map((d, i) => {
-    const src = base10[i] ?? base10[base10.length - 1] ?? { volume: 320 };
-    const swing =
-      70 * Math.sin((i + 1) / 1.2) +
-      28 * Math.sin(i * 2.6) +
-      (Math.random() - 0.5) * 30;
-    return { date: d, volume: Math.max(180, Math.round(src.volume + swing)) };
+  // colors for 9 locations
+  const colors = [
+    "#ef4444", "#3b82f6", "#10b981", "#f59e0b", "#8b5cf6",
+    "#06b6d4", "#dc2626", "#16a34a", "#ea580c",
+  ];
+
+  const base7 = raw.slice(-7);
+  const rows = dates.map((date, i) => {
+    const point = { date };
+    for (let loc = 0; loc < 9; loc++) {
+      const seed =
+        base7[i % base7.length]?.volume ??
+        base7[base7.length - 1]?.volume ??
+        320;
+      const swing =
+        (55 + loc * 3) * Math.sin((i + 1 + loc * 0.3) / (1.2 + loc * 0.03)) +
+        (22 + loc * 1.5) * Math.sin(i * (2.4 + loc * 0.05)) +
+        (Math.random() - 0.5) * (24 + loc * 1.2);
+      point[`loc${loc + 1}`] = Math.max(160, Math.round(seed + swing));
+    }
+    return point;
   });
 
   const startDisplay = "2025/09/01";
   const endDisplay = "2025/09/07";
-  const today = series[series.length - 1];
+  const last = rows[rows.length - 1];
 
   const stopIfBrush = (e) => {
     if (e.target && e.target.closest && e.target.closest(".recharts-brush")) {
@@ -59,7 +71,6 @@ export default function Card2ResultsModal({ data: incoming }) {
   };
 
   return (
-    // Fill the modal-body's height and keep borders off the edges
     <div
       className="shared-font"
       style={{
@@ -106,7 +117,6 @@ export default function Card2ResultsModal({ data: incoming }) {
               gap: 8,
             }}
           >
-            {/* Animated confidence value */}
             <NumberTicker
               value={87}
               startValue={0}
@@ -133,8 +143,21 @@ export default function Card2ResultsModal({ data: incoming }) {
           </div>
           <div style={{ marginTop: 12, fontSize: 14, color: "#4b5563" }}>
             Prediction interval (80%):{" "}
-            <b>{today ? today.volume - 55 : "—"}</b> –{" "}
-            <b>{today ? today.volume + 55 : "—"}</b>
+            <b>
+              {last
+                ? Math.min(
+                    ...Array.from({ length: 9 }, (_, k) => last[`loc${k + 1}`])
+                  ) - 55
+                : "—"}
+            </b>{" "}
+            –{" "}
+            <b>
+              {last
+                ? Math.max(
+                    ...Array.from({ length: 9 }, (_, k) => last[`loc${k + 1}`])
+                  ) + 55
+                : "—"}
+            </b>
           </div>
         </section>
 
@@ -173,11 +196,11 @@ export default function Card2ResultsModal({ data: incoming }) {
           >
             <li>Rain probability ↑ expected to lower hauling efficiency.</li>
             <li>Temperature near seasonal average; minimal thermal impact.</li>
-            <li>Weekday pattern: mid-week volumes typically stronger.</li>
-            <li>Prior 7-day trend suggests mild mean-reversion.</li>
+            <li>Weekday pattern: mid‑week volumes typically stronger.</li>
+            <li>Prior 7‑day trend suggests mild mean‑reversion.</li>
           </ul>
           <div style={{ marginTop: 12, fontSize: 13, color: "#4b5563" }}>
-            What-ifs: <b>No rain (+3–5%)</b>, <b>+5 °C (+1–2%)</b>.
+            What‑ifs: <b>No rain (+3–5%)</b>, <b>+5 °C (+1–2%)</b>.
           </div>
         </section>
       </div>
@@ -207,20 +230,19 @@ export default function Card2ResultsModal({ data: incoming }) {
             flex: "0 0 auto",
           }}
         >
-          <span>Predicted Sales Volume (One Week Ahead)</span>
+          <span>Predicted Sales Volume by Location</span>
           <span style={{ fontSize: 12, color: "#6b7280" }}>
             {startDisplay} → {endDisplay}
           </span>
         </div>
 
-        {/* Chart flexes to fill remaining height */}
         <div
           style={{ flex: 1, minHeight: 0 }}
           onClick={stopIfBrush}
           onPointerDown={stopIfBrush}
         >
           <ResponsiveContainer width="100%" height="100%">
-            <LineChart data={series} margin={{ top: 8, right: 12, bottom: 10, left: 0 }}>
+            <LineChart data={rows} margin={{ top: 8, right: 12, bottom: 10, left: 0 }}>
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis
                 dataKey="date"
@@ -237,16 +259,26 @@ export default function Card2ResultsModal({ data: incoming }) {
                 contentStyle={{ borderRadius: 8, borderColor: "#e5e7eb", fontSize: 12 }}
                 labelStyle={{ fontWeight: 700 }}
                 labelFormatter={(d) => d.replace(/-/g, "/")}
+                formatter={(value, name) => [value, name]}
               />
-              <Line
-                type="monotone"
-                dataKey="volume"
-                stroke="#FF0000"
-                strokeWidth={2}
-                dot={false}
-                activeDot={{ r: 4 }}
-              />
-              {today && <ReferenceDot x={today.date} y={today.volume} r={5} fill="#FF0000" />}
+
+              {Array.from({ length: 9 }, (_, k) => (
+                <Line
+                  key={k}
+                  type="monotone"
+                  dataKey={`loc${k + 1}`}
+                  name={`Location ${k + 1}`}
+                  stroke={colors[k]}
+                  strokeWidth={2}
+                  dot={false}
+                  activeDot={{ r: 4 }}
+
+                  isAnimationActive={true}
+                  animationDuration={700}
+                  animationEasing="ease-out"
+                />
+              ))}
+
               <Brush
                 className="vc-brush vc-brush--slate"
                 dataKey="date"
@@ -260,7 +292,7 @@ export default function Card2ResultsModal({ data: incoming }) {
         </div>
 
         <div style={{ marginTop: 8, fontSize: 12, color: "#6b7280", flex: "0 0 auto" }}>
-          Tip: drag the handles in the scrubber (below) to zoom a window inside the range.
+          Tip: hover a line to see the location name, and drag the scrubber below to zoom.
         </div>
       </div>
     </div>
