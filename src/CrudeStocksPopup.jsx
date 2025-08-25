@@ -1,13 +1,11 @@
 "use client";
 
 import React, { useEffect, useMemo, useRef, useState, memo } from "react";
-import { AnimatePresence, motion } from "framer-motion";
+import { motion } from "framer-motion";
 import OilBarCard from "./OilBarCard";
 
 /* ─── utils ───────────────────────────────────────────── */
 const clamp = (v, min, max) => Math.min(max, Math.max(min, v));
-function cn(...p){return p.filter(Boolean).join(" ");}
-
 function pctToColor(pct) {
   const t = (clamp(pct, -6, 6) + 6) / 12;
   const L = (a,b,u)=>Math.round(a+(b-a)*u);
@@ -21,108 +19,101 @@ function isLightColor(rgb){
   return ((0.2126*r+0.7152*g+0.0722*b)/255) > 0.52;
 }
 
-/* ─── Alerts ──────────────────────────────────────────── */
-function AnimatedListItem({ children }) {
-  return (
-    <motion.div
-      layout
-      initial={{ y: -6, opacity: 0 }}
-      animate={{ y: 0, opacity: 1 }}
-      exit={{ opacity: 0, height: 0, marginTop: 0, marginBottom: 0 }}
-      transition={{ type: "spring", stiffness: 420, damping: 36 }}
-      style={{ overflow: "hidden" }}
-    >
-      {children}
-    </motion.div>
-  );
-}
-
+/* ─── Alerts*/
 const AnimatedList = memo(function AnimatedList({
   items, delay = 10000, maxVisible = 4
 }) {
-  const [visible, setVisible] = useState([]);
-  const idxRef = useRef(0);
-  const idCounter = useRef(0);
-  const flat = useMemo(() => items.slice(), [items]);
+  const safeItems = items && items.length ? items : [];
+  const [slots, setSlots] = useState(() => {
+    const seed = Array.from({ length: maxVisible }, (_, i) => ({
+      slot: i,
+      data: safeItems[i % Math.max(1, safeItems.length)] || {},
+      token: 0, // bumps to trigger a small fade-in when content changes
+    }));
+    return seed;
+  });
+  const nextIdx = useRef(maxVisible);
 
   useEffect(() => {
-    if (!flat.length) return;
-
-    const seeded = [];
-    for (let i = 0; i < Math.min(maxVisible, flat.length); i++) {
-      seeded.unshift({ ...flat[i], __id: idCounter.current++ });
-    }
-    setVisible(seeded);
-    idxRef.current = maxVisible;
+    if (!safeItems.length) return;
 
     const id = setInterval(() => {
-      setVisible(prev => {
-        const nextRaw = flat[idxRef.current % flat.length];
-        idxRef.current += 1;
-        const next = { ...nextRaw, __id: idCounter.current++ };
-        const updated = [next, ...prev];
-        if (updated.length > maxVisible) updated.length = maxVisible;
-        return updated;
+      const nextRaw = safeItems[nextIdx.current % safeItems.length];
+      nextIdx.current += 1;
+
+      
+      setSlots(prev => {
+        const out = prev.map(s => ({ ...s }));
+        for (let i = maxVisible - 1; i > 0; i--) out[i].data = prev[i - 1].data;
+        out[0].data = nextRaw;
+        out[0].token = (out[0].token || 0) + 1;
+        return out;
       });
     }, delay);
 
     return () => clearInterval(id);
-  }, [delay, maxVisible, flat]);
+  }, [safeItems, delay, maxVisible]);
 
-  // Centered 2x2 grid
+  
   const containerStyle = {
     display: "grid",
-    gridTemplateColumns: "1fr 1fr",
-    gridTemplateRows: "1fr 1fr",
-    gap: 8,
-    width: "100%",
+    gridTemplateRows: `repeat(${maxVisible}, 1fr)`,
+    rowGap: 6,
     height: "100%",
-    placeItems: "center",         // centers inside panel
-    justifyItems: "center",
-    alignItems: "center"
+    width: "100%",
   };
 
   return (
-    <motion.div layout style={containerStyle}>
-      <AnimatePresence initial={false}>
-        {visible.map(item => (
-          <AnimatedListItem key={item.__id}>
-            <Notification {...item} />
-          </AnimatedListItem>
-        ))}
-      </AnimatePresence>
-    </motion.div>
+    <div style={containerStyle}>
+      {slots.map(s => (
+        <div key={s.slot} style={{ display: "flex" }}>
+          
+          <motion.div
+            key={s.token}
+            initial={{ opacity: 0, y: -6 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.2 }}
+            style={{ flex: 1, display: "flex" }}
+          >
+            <Notification {...s.data} />
+          </motion.div>
+        </div>
+      ))}
+    </div>
   );
 });
 
 function Notification({ name, description, icon, color, time }) {
+
   const card = {
     background: "#fff",
-    borderRadius: 8,
-    padding: 6,
+    borderRadius: 6,
+    padding: 2,
     border: "1px solid rgba(0,0,0,0.06)",
-    boxShadow: "0 1px 3px rgba(0,0,0,0.05)",
-    minHeight: 42,
-    minWidth: 130,
+    boxShadow: "0 1px 2px rgba(0,0,0,0.04)",
+    flex: 1,
+    display: "flex",
+    alignItems: "center",
+    width: "100%",
     boxSizing: "border-box",
   };
-  const row = { display: "flex", alignItems: "center", gap: 6, minWidth: 0 };
+  const row = { display: "flex", alignItems: "center", gap: 6, minWidth: 0, width: "100%" };
   const iconBox = {
-    width: 16, height: 16, borderRadius: 9999, backgroundColor: color,
-    display: "flex", alignItems: "center", justifyContent: "center", flex: "0 0 16px"
+    width: 12, height: 12, borderRadius: 9999, backgroundColor: color,
+    display: "flex", alignItems: "center", justifyContent: "center", flex: "0 0 12px"
   };
   const titleRow = {
-    display: "flex", alignItems: "center", gap: 6,
-    fontWeight: 700, fontSize: 11,
+    display: "flex", alignItems: "center", gap: 4,
+    fontWeight: 600, fontSize: 9,
     color: "#111827", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis",
   };
-  const timeStyle = { color: "#6B7280", fontSize: 10 };
-  const subStyle  = { marginTop: 1, fontSize: 10, color: "#6B7280" };
+  const timeStyle = { color: "#6B7280", fontSize: 8 };
+  const subStyle  = { marginTop: 1, fontSize: 8, color: "#6B7280" };
 
   return (
     <figure style={card}>
       <div style={row}>
-        <div style={iconBox}><span style={{ fontSize: 10 }}>{icon}</span></div>
+        <div style={iconBox}><span style={{ fontSize: 8 }}>{icon}</span></div>
         <div style={{ minWidth: 0, flex: 1 }}>
           <div style={titleRow}>
             <span>{name}</span>
@@ -136,14 +127,15 @@ function Notification({ name, description, icon, color, time }) {
   );
 }
 
+/* ─── Alerts seed data  */
 const baseNotifications = [
-  { name: "New message", description: "Magic UI", time: "5m ago",  icon: "💬", color: "#FF3D71" },
-  { name: "User signed up", description: "Magic UI", time: "10m ago", icon: "👤", color: "#FFB800" },
+  { name: "New message",     description: "Magic UI", time: "5m ago",  icon: "💬", color: "#FF3D71" },
   { name: "Payment received", description: "Magic UI", time: "15m ago", icon: "💸", color: "#00C9A7" },
+  { name: "User signed up",   description: "Magic UI", time: "10m ago", icon: "👤", color: "#FFB800" },
 ];
-const notifications = Array.from({ length: 10 }, () => baseNotifications).flat();
+const notifications = Array.from({ length: 12 }, () => baseNotifications).flat();
 
-/* ─── Heatmap ───────────────── */
+/* ─── Heatmap  */
 const SAMPLE_SP500 = [
   { ticker:"AAPL", name:"Apple", pct:-1.8 }, { ticker:"MSFT", name:"Microsoft", pct:-0.9 },
   { ticker:"NVDA", name:"NVIDIA", pct:2.2 }, { ticker:"GOOG", name:"Alphabet", pct:-1.3 },
@@ -211,7 +203,8 @@ function SP500Heatmap({ data=SAMPLE_SP500 }) {
 /* ─── Layout ─── */
 export default function CrudeStocksPopup(){
   const WRAP={ width:"100%", height:720, padding:14, boxSizing:"border-box", display:"grid", gridTemplateColumns:"380px 1fr", columnGap:16 };
-  const LEFTGRID={ display:"grid", gridTemplateRows:"60% 40%", rowGap:12, height:"100%", minWidth:0 };
+
+  const LEFTGRID={ display:"grid", gridTemplateRows:"55% 45%", rowGap:12, height:"100%", minWidth:0 };
   const panel={ background:"#fff", border:"1px solid rgba(0,0,0,.06)", borderRadius:10, padding:8, display:"flex", flexDirection:"column" };
   const title={ fontSize:16, fontWeight:700, textAlign:"center", marginBottom:8 };
 
@@ -224,7 +217,7 @@ export default function CrudeStocksPopup(){
 
         <section style={{ ...panel }}>
           <h3 style={title}>Live Alerts</h3>
-          <div style={{ flex:1, display:"flex", justifyContent:"center", alignItems:"center" }}>
+          <div style={{ flex:1 }}>
             <AnimatedList items={notifications} delay={10000} maxVisible={4} />
           </div>
         </section>
