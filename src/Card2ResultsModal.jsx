@@ -17,7 +17,7 @@ function makeFakeMonth() {
   const today = new Date();
   for (let i = 29; i >= 0; i--) {
     const d = new Date(today);
-    d.setDate(d.getDate() - i);
+    d.setDate(today.getDate() - i);
     const date = d.toISOString().slice(0, 10);
     const base = 340 + Math.sin(i / 3) * 20;
     const noise = Math.round((Math.random() - 0.5) * 24);
@@ -30,42 +30,68 @@ export default function Card2ResultsModal({ data: incoming }) {
   const raw = useMemo(() => incoming ?? makeFakeMonth(), [incoming]);
 
   // Sept 01 -> Sept 07
-  const dates = Array.from({ length: 7 }, (_, k) => {
-    const d = new Date("2025-09-01");
-    d.setDate(d.getDate() + k);
-    return d.toISOString().slice(0, 10);
-  });
+  const dates = useMemo(() => {
+    return Array.from({ length: 7 }, (_, k) => {
+      const d = new Date("2025-09-01");
+      d.setDate(d.getDate() + k);
+      return d.toISOString().slice(0, 10);
+    });
+  }, []);
   const labelTicks = dates;
 
-  // colors for 9 locations
   const colors = [
     "#ef4444", "#3b82f6", "#10b981", "#f59e0b", "#8b5cf6",
     "#06b6d4", "#dc2626", "#16a34a", "#ea580c",
   ];
 
-  // Build rows
-  const base7 = raw.slice(-7);
-  const rows = dates.map((date, i) => {
-    const point = { date };
-    for (let loc = 0; loc < 9; loc++) {
-      const seed =
-        base7[i % base7.length]?.volume ??
-        base7[base7.length - 1]?.volume ??
-        320;
-      const swing =
-        (55 + loc * 3) * Math.sin((i + 1 + loc * 0.3) / (1.2 + loc * 0.03)) +
-        (22 + loc * 1.5) * Math.sin(i * (2.4 + loc * 0.05)) +
-        (Math.random() - 0.5) * (24 + loc * 1.2);
-      point[`loc${loc + 1}`] = Math.max(160, Math.round(seed + swing));
-    }
-    return point;
-  });
+  const rows = useMemo(() => {
+    const base7 = raw.slice(-7);
+    return dates.map((date, i) => {
+      const point = { date };
+      for (let loc = 0; loc < 9; loc++) {
+        const seed =
+          base7[i % base7.length]?.volume ??
+          base7[base7.length - 1]?.volume ??
+          320;
+        const swing =
+          (55 + loc * 3) * Math.sin((i + 1 + loc * 0.3) / (1.2 + loc * 0.03)) +
+          (22 + loc * 1.5) * Math.sin(i * (2.4 + loc * 0.05)) +
+          (Math.random() - 0.5) * (24 + loc * 1.2);
+        point[`loc${loc + 1}`] = Math.max(160, Math.round(seed + swing));
+      }
+      return point;
+    });
+  }, [raw, dates]);
 
   const startDisplay = "2025/09/01";
   const endDisplay = "2025/09/07";
   const last = rows[rows.length - 1];
 
-  const [selectedKey, setSelectedKey] = useState("ALL"); // "ALL" | "loc1".."loc9"
+  const allKeys = Array.from({ length: 9 }, (_, i) => `loc${i + 1}`);
+  const [open, setOpen] = useState(false);
+  const [selectedKeys, setSelectedKeys] = useState(allKeys);
+
+
+  const toggleKey = (key) => {
+    if (key === "ALL") {
+      setSelectedKeys((prev) =>
+        prev.length === allKeys.length ? [] : allKeys
+      );
+    } else {
+      setSelectedKeys((prev) =>
+        prev.includes(key) ? prev.filter((k) => k !== key) : [...prev, key]
+      );
+    }
+  };
+
+  const labelForSelection = () => {
+    if (selectedKeys.length === allKeys.length) return "All Locations";
+    if (selectedKeys.length === 1) {
+      const n = Number(selectedKeys[0].replace("loc", ""));
+      return `Location ${n}`;
+    }
+    return `${selectedKeys.length} selected`;
+  };
 
   const stopIfBrush = (e) => {
     if (e.target && e.target.closest && e.target.closest(".recharts-brush")) {
@@ -84,6 +110,7 @@ export default function Card2ResultsModal({ data: incoming }) {
         padding: 12,
         boxSizing: "border-box",
       }}
+      onClick={() => open && setOpen(false)}
     >
       {/* LEFT COLUMN */}
       <div
@@ -221,8 +248,9 @@ export default function Card2ResultsModal({ data: incoming }) {
           flexDirection: "column",
           minHeight: 0,
         }}
+        onClick={(e) => e.stopPropagation()}
       >
-        {/* Header with title • dropdown • dates */}
+        {/* Header with title  dropdown  dates */}
         <div
           style={{
             marginBottom: 8,
@@ -231,33 +259,70 @@ export default function Card2ResultsModal({ data: incoming }) {
             gap: 12,
             fontSize: 14,
             fontWeight: 600,
+            position: "relative",
             flex: "0 0 auto",
           }}
         >
           <span>Predicted Sales Volume by Location</span>
-          <select
-            value={selectedKey}
-            onChange={(e) => setSelectedKey(e.target.value)}
+
+          <button
+            type="button"
+            onClick={() => setOpen((v) => !v)}
             style={{
               fontSize: 12,
-              padding: "4px 8px",
+              padding: "4px 10px",
               borderRadius: 8,
               border: "1px solid #e5e7eb",
               background: "#fff",
+              cursor: "pointer",
             }}
+            title="Use checkboxes to multi-select."
           >
-            <option value="ALL">All Locations</option>
-            {Array.from({ length: 9 }, (_, i) => (
-              <option key={i} value={`loc${i + 1}`}>{`Location ${i + 1}`}</option>
-            ))}
-          </select>
+            {labelForSelection()}
+          </button>
+
+          {open && (
+            <div
+              style={{
+                position: "absolute",
+                top: "100%",
+                left: 210,
+                marginTop: 6,
+                background: "#fff",
+                border: "1px solid #e5e7eb",
+                borderRadius: 8,
+                boxShadow: "0 8px 20px rgba(0,0,0,0.08)",
+                padding: 6,
+                zIndex: 20,
+                minWidth: 180,
+              }}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <MenuItem
+                label="All Locations"
+                checked={selectedKeys.length === allKeys.length}
+                onChange={() => toggleKey("ALL")}
+              />
+              <div style={{ height: 6 }} />
+              {allKeys.map((k, idx) => (
+                <MenuItem
+                  key={k}
+                  label={`Location ${idx + 1}`}
+                  checked={selectedKeys.includes(k)}
+                  swatch={colors[idx]}
+                  onChange={() => toggleKey(k)}
+                />
+              ))}
+            </div>
+          )}
+
           <span style={{ marginLeft: "auto", fontSize: 12, color: "#6b7280" }}>
             {startDisplay} → {endDisplay}
           </span>
         </div>
 
         {/* Chart */}
-        <div style={{ flex: 1, minHeight: 0 }} onClick={stopIfBrush} onPointerDown={stopIfBrush}>
+        <div style={{ flex: 1, minHeight: 0 }} onPointerDown={stopIfBrush}>
           <ResponsiveContainer width="100%" height="100%">
             <LineChart data={rows} margin={{ top: 8, right: 12, bottom: 10, left: 0 }}>
               <CartesianGrid strokeDasharray="3 3" />
@@ -278,24 +343,15 @@ export default function Card2ResultsModal({ data: incoming }) {
                 labelFormatter={(d) => d.replace(/-/g, "/")}
                 formatter={(value, name) => [value, name]}
               />
-
-              {(selectedKey === "ALL"
-                ? Array.from({ length: 9 }, (_, k) => `loc${k + 1}`)
-                : [selectedKey]
-              ).map((key, idx) => {
-                const colorIdx =
-                  key === "ALL" ? idx : parseInt(key.replace("loc", ""), 10) - 1;
+              {selectedKeys.map((key) => {
+                const idx = Number(key.replace("loc", "")) - 1;
                 return (
                   <Line
-                    key={key + idx}
+                    key={key}
                     type="monotone"
                     dataKey={key}
-                    name={
-                      key === "ALL"
-                        ? `Location ${idx + 1}`
-                        : `Location ${parseInt(key.replace("loc", ""), 10)}`
-                    }
-                    stroke={colors[colorIdx]}
+                    name={`Location ${idx + 1}`}
+                    stroke={colors[idx]}
                     strokeWidth={2}
                     dot={false}
                     activeDot={{ r: 4 }}
@@ -305,7 +361,6 @@ export default function Card2ResultsModal({ data: incoming }) {
                   />
                 );
               })}
-
               <Brush
                 className="vc-brush vc-brush--slate"
                 dataKey="date"
@@ -318,10 +373,37 @@ export default function Card2ResultsModal({ data: incoming }) {
           </ResponsiveContainer>
         </div>
 
-        <div style={{ marginTop: 8, fontSize: 12, color: "#6b7280", flex: "0 0 auto" }}>
-          Tip: use the dropdown to focus on a single location or show all; drag the scrubber below to zoom.
+        <div style={{ marginTop: 8, fontSize: 12, color: "#6b7280" }}>
+          Tip: use the dropdown to focus on specific locations.
         </div>
       </div>
     </div>
+  );
+}
+
+function MenuItem({ label, checked, onChange, swatch }) {
+  return (
+    <label
+      style={{
+        display: "flex",
+        alignItems: "center",
+        gap: 8,
+        padding: "6px 8px",
+        borderRadius: 6,
+        cursor: "pointer",
+        background: checked ? "#f3f4f6" : "transparent",
+      }}
+    >
+      <input
+        type="checkbox"
+        checked={checked}
+        onChange={onChange}
+        style={{ cursor: "pointer" }}
+      />
+      {swatch && (
+        <span style={{ width: 10, height: 10, background: swatch, borderRadius: 2 }} />
+      )}
+      <span style={{ fontSize: 12 }}>{label}</span>
+    </label>
   );
 }
