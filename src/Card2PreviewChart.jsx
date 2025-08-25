@@ -103,12 +103,15 @@ export default function Card2PreviewChart({ data = [] }) {
           fontSize: 14,
           fontWeight: 600,
           position: "relative",
+          whiteSpace: "nowrap",
+          minHeight: 32,
         }}
         onClick={stopAll}
         onMouseDown={stopAll}
         onPointerDown={stopAll}
       >
-        <span>Predicted Sales Volume by Location</span>
+        <span style={{ flexShrink: 0 }}>Predicted Sales Volume by Location</span>
+
 
         <button
           type="button"
@@ -120,6 +123,11 @@ export default function Card2PreviewChart({ data = [] }) {
             border: "1px solid #e5e7eb",
             background: "#fff",
             cursor: "pointer",
+             display: "inline-flex",    
+    alignItems: "center",      
+    lineHeight: 1,             
+    minWidth: "140",            
+    whiteSpace: "nowrap",    
           }}
         >
           {labelForSelection()}
