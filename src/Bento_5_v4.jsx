@@ -37,27 +37,27 @@ function makeFakeMonth() {
 // 4 item options for the InfiniteMenu 
 const tlMenuItems = [
   {
-    image: "https://picsum.photos/seed/toronto/900/900",
-    title: "Toronto, ON",
-    description: "Downtown core & GTA",
+    image: "/ontario.jpg",
+    title: "ONTARIO REGION",
+    //description: "Downtown core & GTA",
     link: "#toronto",
   },
   {
-    image: "https://picsum.photos/seed/ottawa/900/900",
-    title: "Ottawa, ON",
-    description: "Capital region",
+    image: "/quebec.png",
+    title: "QUEBEC REGION",
+    //description: "Capital region",
     link: "#ottawa",
   },
   {
-    image: "https://picsum.photos/seed/kingston/900/900",
-    title: "Kingston, ON",
-    description: "Limestone City",
+    image: "/atlantic.png",
+    title: "ATLANTIC REGION",
+    //description: "Limestone City",
     link: "#kingston",
   },
   {
-    image: "https://picsum.photos/seed/hamilton/900/900",
-    title: "Hamilton, ON",
-    description: "Bayfront & steel",
+    image: "/west.png",
+    title: "WEST REGION",
+    //description: "Bayfront & steel",
     link: "#hamilton",
   },
 ];
