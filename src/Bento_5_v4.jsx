@@ -276,7 +276,7 @@ export default function Bento_5_v4() {
         
         <div className="hello-user">
   <TextType
-    text={["Hello Edmund!", "Welcome to VoluCast", "Sales are looking good today!"]}
+    text={["Hello Edmund! 🙂", "Welcome to VoluCast.", "Sales are looking good today! 🤩"]}
     typingSpeed={75}
     pauseDuration={1500}
     showCursor={true}
