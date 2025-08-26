@@ -1,9 +1,21 @@
 import React, { useEffect, useMemo, useState } from "react";
 
+/**
+ * Time + Google Maps card.
+ * Now listens for a CustomEvent('set-map-location', {detail:{lat,lng,label}})
+ * dispatched by the InfiniteMenu button. Defaults to Toronto.
+ */
 export default function TimeLocationCard() {
   const [time, setTime] = useState("");
 
-  // Update current time every second (but keep layout stable)
+  // --- location state (defaults: Toronto) ---
+  const [loc, setLoc] = useState({
+    lat: 43.6532,
+    lng: -79.3832,
+    label: "Toronto, ON",
+  });
+
+  // Keep time ticking, but don't jitter the layout
   useEffect(() => {
     const updateTime = () => {
       const now = new Date();
@@ -20,15 +32,30 @@ export default function TimeLocationCard() {
     return () => clearInterval(id);
   }, []);
 
-  const lat = 43.6532;
-  const lng = -79.3832;
-  const src = `https://www.google.com/maps?q=${lat},${lng}&z=13&output=embed`;
+  // Listen for location changes coming from the InfiniteMenu
+  useEffect(() => {
+    const handler = (e) => {
+      const { lat, lng, label } = e.detail || {};
+      if (typeof lat === "number" && typeof lng === "number") {
+        setLoc({
+          lat,
+          lng,
+          label: label || loc.label,
+        });
+      }
+    };
+    window.addEventListener("set-map-location", handler);
+    return () => window.removeEventListener("set-map-location", handler);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const src = `https://www.google.com/maps?q=${loc.lat},${loc.lng}&z=13&output=embed`;
 
   // Keep the iframe element stable so it doesn't remount on each tick
   const MapFrame = useMemo(
     () => (
       <iframe
-        title="map-toronto"
+        title="map-embed"
         src={src}
         loading="lazy"
         style={{
@@ -76,16 +103,15 @@ export default function TimeLocationCard() {
           className="tl-time"
           aria-live="polite"
           style={{
-            // reserve fixed space so digits don't push layout
-            width: "11ch", // fits “10:15:31 AM”
+            width: "11ch",
             textAlign: "right",
             whiteSpace: "nowrap",
-            // make digits fixed-width to stop jitter
             fontVariantNumeric: "tabular-nums",
             fontFeatureSettings: '"tnum" 1',
             fontFamily:
               'ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace',
           }}
+          title={loc.label}
         >
           {time}
         </div>

@@ -837,26 +837,29 @@ const defaultItems = [
 export default function InfiniteMenu({ items = [] }) {
   const canvasRef = useRef(null);
   const [activeItem, setActiveItem] = useState(items?.[0] ?? null);
-const [isMoving, setIsMoving] = useState(false);
+  const [isMoving, setIsMoving] = useState(false);
 
-useEffect(() => {
-  if (items?.length) setActiveItem((prev) => prev ?? items[0]);
-}, [items]);
-
+  // Ensure we have an active item when items arrive
+  useEffect(() => {
+    if (items?.length && !activeItem) setActiveItem(items[0]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [items]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
     let sketch;
 
     const handleActiveItem = (index) => {
-      const itemIndex = index % items.length;
+      const itemIndex = items.length ? index % items.length : 0;
       setActiveItem(items[itemIndex]);
     };
 
     if (canvas) {
       sketch = new InfiniteGridMenu(
         canvas,
-        items.length ? items : defaultItems,
+        items.length ? items : [
+          { image: "https://picsum.photos/900/900?grayscale", title: "", link: "", description: "" }
+        ],
         handleActiveItem,
         setIsMoving,
         (sk) => sk.run()
@@ -864,45 +867,67 @@ useEffect(() => {
     }
 
     const handleResize = () => {
-      if (sketch) {
-        sketch.resize();
-      }
+      if (sketch) sketch.resize();
     };
 
-    window.addEventListener('resize', handleResize);
+    window.addEventListener("resize", handleResize);
     handleResize();
 
     return () => {
-      window.removeEventListener('resize', handleResize);
+      window.removeEventListener("resize", handleResize);
     };
   }, [items]);
 
+  // Map region titles -> coordinates and dispatch to the card
   const handleButtonClick = () => {
-    if (!activeItem?.link) return;
-    if (activeItem.link.startsWith('http')) {
-      window.open(activeItem.link, '_blank');
-    } else {
-      console.log('Internal route:', activeItem.link);
-    }
+    if (!activeItem?.title) return;
+
+    const title = String(activeItem.title).toLowerCase();
+
+    // Defaults (Toronto)
+    let lat = 43.6532, lng = -79.3832, label = "Toronto, ON";
+
+    if (title.includes("quebec")) {
+      lat = 45.5019; lng = -73.5674; label = "Montreal, QC";
+    } else if (title.includes("atlantic")) {
+      lat = 45.9636; lng = -66.6431; label = "New Brunswick";
+    } else if (title.includes("west")) {
+      lat = 53.5461; lng = -113.4938; label = "Edmonton, AB";
+    } // else "ontario" stays Toronto
+
+    // Tell the TimeLocationCard to move the map
+    window.dispatchEvent(
+      new CustomEvent("set-map-location", { detail: { lat, lng, label } })
+    );
   };
 
   return (
-    <div style={{ position: 'relative', width: '100%', height: '100%' }}>
-      <canvas
-        id="infinite-grid-menu-canvas"
-        ref={canvasRef}
-      />
+    <div style={{ position: "relative", width: "100%", height: "100%" }}>
+      <canvas id="infinite-grid-menu-canvas" ref={canvasRef} />
 
       {activeItem && (
-  <>
-    <h2 className="face-title">{activeItem.title}</h2>
-    <p className="face-description">{activeItem.description}</p>
-    <div onClick={handleButtonClick} className="action-button">
-      <p className="action-button-icon">&#x2197;</p>
-    </div>
-  </>
-)}
+        <>
+          <h2 className={`face-title ${isMoving ? "inactive" : "active"}`}>
+            {activeItem.title}
+          </h2>
 
-    </div >
+          {/* keep description hook if you ever add text */}
+          <p className={`face-description ${isMoving ? "inactive" : "active"}`}>
+            {activeItem.description}
+          </p>
+
+          <div
+            onClick={handleButtonClick}
+            className={`action-button ${isMoving ? "inactive" : "active"}`}
+            title="Set location for Time & Location card"
+            role="button"
+            tabIndex={0}
+            onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && handleButtonClick()}
+          >
+            <p className="action-button-icon">&#x2197;</p>
+          </div>
+        </>
+      )}
+    </div>
   );
 }
