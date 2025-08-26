@@ -878,28 +878,36 @@ export default function InfiniteMenu({ items = [] }) {
     };
   }, [items]);
 
-  // Map region titles -> coordinates and dispatch to the card
+  // Map region titles 
   const handleButtonClick = () => {
-    if (!activeItem?.title) return;
+  if (!activeItem?.title) return;
 
-    const title = String(activeItem.title).toLowerCase();
+  const title = String(activeItem.title).toLowerCase();
 
-    // Defaults (Toronto)
-    let lat = 43.6532, lng = -79.3832, label = "Toronto, ON";
+  // Defaults (Toronto)
+  let lat = 43.6532, lng = -79.3832, label = "Toronto, ON";
 
-    if (title.includes("quebec")) {
-      lat = 45.5019; lng = -73.5674; label = "Montreal, QC";
-    } else if (title.includes("atlantic")) {
-      lat = 45.9636; lng = -66.6431; label = "New Brunswick";
-    } else if (title.includes("west")) {
-      lat = 53.5461; lng = -113.4938; label = "Edmonton, AB";
-    } // else "ontario" stays Toronto
+  if (title.includes("quebec")) {
+    lat = 45.5019; lng = -73.5674; label = "Montreal, QC";
+  } else if (title.includes("atlantic")) {
+    lat = 45.9636; lng = -66.6431; label = "New Brunswick";
+  } else if (title.includes("west")) {
+    lat = 53.5461; lng = -113.4938; label = "Edmonton, AB";
+  }
 
-    // Tell the TimeLocationCard to move the map
-    window.dispatchEvent(
-      new CustomEvent("set-map-location", { detail: { lat, lng, label } })
-    );
-  };
+  // 1) Tell the TimeLocationCard to update the map
+  window.dispatchEvent(
+    new CustomEvent("set-map-location", { detail: { lat, lng, label } })
+  );
+
+  // 2) Close the popup by simulating Escape 
+  window.dispatchEvent(
+    new KeyboardEvent("keydown", { key: "Escape", code: "Escape", keyCode: 27, which: 27 })
+  );
+
+  
+};
+
 
   return (
     <div style={{ position: "relative", width: "100%", height: "100%" }}>
@@ -911,7 +919,7 @@ export default function InfiniteMenu({ items = [] }) {
             {activeItem.title}
           </h2>
 
-          {/* keep description hook if you ever add text */}
+          
           <p className={`face-description ${isMoving ? "inactive" : "active"}`}>
             {activeItem.description}
           </p>

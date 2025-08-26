@@ -1,12 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 
-/**
- * Time + Google Maps card.
- * Listens for: CustomEvent('set-map-location', { detail:{ lat, lng, label } })
- * - Toronto / Quebec → use local time (no override)
- * - Edmonton        → America/Edmonton
- * - New Brunswick   → America/Moncton
- */
+
 export default function TimeLocationCard() {
   const [time, setTime] = useState("");
 
@@ -17,7 +11,7 @@ export default function TimeLocationCard() {
     label: "Toronto, ON",
   });
 
-  // Optional timezone override (only for Edmonton / New Brunswick)
+  
   const [tzOverride, setTzOverride] = useState(null);
 
   // Tick clock (restarts if timezone changes)
@@ -52,7 +46,7 @@ export default function TimeLocationCard() {
         // Decide timezone override
         const lbl = (label || "").toLowerCase();
 
-        // Default: no override (Toronto/Quebec use local time)
+        // Default: no override 
         let tz = null;
 
         // Label-based detection
@@ -80,7 +74,7 @@ export default function TimeLocationCard() {
 
   const src = `https://www.google.com/maps?q=${loc.lat},${loc.lng}&z=13&output=embed`;
 
-  // Keep the iframe element stable so it doesn't remount on each tick
+  
   const MapFrame = useMemo(
     () => (
       <iframe

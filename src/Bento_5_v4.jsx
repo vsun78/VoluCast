@@ -63,7 +63,7 @@ function CrudeTwoStockFront() {
   );
 }
 
-// BACK OF FLIP: your existing mini preview (kept exactly as before)
+// BACK OF FLIP: your existing mini preview 
 function CrudePreviewBack() {
   return (
     <div className="flip-face flip-back">
