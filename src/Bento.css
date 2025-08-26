@@ -279,7 +279,9 @@
 .stock-pct.up{ color:#22c55e; }  /* green */
 .stock-pct.down{ color:#ef4444; }/* red */
 
+
 /* Back: existing preview side */
+.flip-back { transform: rotateY(180deg); }
 
 .bento-inner{
   width: min(var(--maxw), 96vw);
