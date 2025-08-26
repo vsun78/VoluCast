@@ -260,7 +260,7 @@
 
 /* Front: two-stock mini layout */
 .two-stock-front{
-  background:#1f2937; /* slate background */
+  background:#ffffff; /* slate background */
   display:flex; flex-direction:column; gap:10px; padding:14px;
 }
 .stock-row{
