@@ -280,4 +280,25 @@
 .stock-pct.down{ color:#ef4444; }/* red */
 
 /* Back: existing preview side */
-.flip-back{ transform: rotateY(180deg); }
+
+.bento-inner{
+  width: min(var(--maxw), 96vw);
+  margin: 0 auto; /* center within .bento-wrap */
+  display: block;
+}
+
+
+.hello-user{
+  text-align: center;
+  font-weight: 800;
+  font-size: 1.25rem; /* zoom-friendly */
+  color: #ffffff;
+  letter-spacing: .3px;
+  text-shadow: 0 1px 3px rgba(0,0,0,.35);
+  margin: 12px 0 18px; /* space above/below */
+}
+
+@media (max-width: 600px){
+  .hello-user{ font-size: 1.1rem; margin: 10px 0 14px; }
+}
+

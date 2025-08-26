@@ -147,7 +147,7 @@ export default function Bento_5_v4() {
         return;
       }
 
-      // Try 1: search with curated OR query (no country filter; it can suppress results)
+      // Try 1: search with curated OR query
       const q1 =
         'asphalt OR bitumen OR "road construction" OR paving OR infrastructure OR "crude oil" OR WTI OR WCS OR diesel OR refinery OR pipeline OR "Bank of Canada" OR inflation OR "interest rates" OR CPI OR "infrastructure spending"';
       const url1 = `https://gnews.io/api/v4/search?q=${encodeURIComponent(
@@ -161,7 +161,7 @@ export default function Bento_5_v4() {
         q2
       )}&lang=en&max=10&token=${token}`;
 
-      // Try 3: fallback to business headlines (topic) if search returns nothing
+      // Try 3: fallback to business headlines
       const url3 = `https://gnews.io/api/v4/top-headlines?topic=business&lang=en&max=10&token=${token}`;
 
       try {
@@ -269,59 +269,66 @@ export default function Bento_5_v4() {
         <img src="/mcaiLogo1.png" alt="MCAI Logo" />
       </div>
 
-      <div className={`bento-grid ${loaded ? "is-loaded" : ""}`}>
-        {cells.map((n, i) => {
-          const extra = i === 1 ? "span-big" : i === 4 ? "span-last" : "";
-          const clickable = hasPopup(i);
-          const dir = dirFor(i);
-          return (
-            <div key={n} className={`bento-cell-wrapper ${extra} ${dir}`}>
-              <StarBorder
-                as="div"
-                color={i % 2 === 0 ? "cyan" : "violet"}
-                speed="6s"
-                thickness={3}
-              >
-                {/* Entire card is the trigger if it has a popup */}
-                <div
-                  className="bento-cell"
-                  role={clickable ? "button" : undefined}
-                  tabIndex={clickable ? 0 : undefined}
-                  onClick={clickable ? () => openForIndex(i) : undefined}
-                  onKeyDown={keyActivate(i)}
-                  style={clickable ? { cursor: "pointer" } : undefined}
+      
+      <div className="bento-inner">
+        
+        <div className="hello-user">Hello Edmund!</div>
+
+        <div className={`bento-grid ${loaded ? "is-loaded" : ""}`}>
+          {cells.map((n, i) => {
+            const extra = i === 1 ? "span-big" : i === 4 ? "span-last" : "";
+            const clickable = hasPopup(i);
+            const dir = dirFor(i);
+            return (
+              <div key={n} className={`bento-cell-wrapper ${extra} ${dir}`}>
+                <StarBorder
+                  as="div"
+                  color={i % 2 === 0 ? "cyan" : "violet"}
+                  speed="6s"
+                  thickness={3}
                 >
-                  {i === 0 ? (
-                    previewArticle ? (
-                      <NewsPreview article={previewArticle} />
+                  {/* Entire card is the trigger if it has a popup */}
+                  <div
+                    className="bento-cell"
+                    role={clickable ? "button" : undefined}
+                    tabIndex={clickable ? 0 : undefined}
+                    onClick={clickable ? () => openForIndex(i) : undefined}
+                    onKeyDown={keyActivate(i)}
+                    style={clickable ? { cursor: "pointer" } : undefined}
+                  >
+                    {i === 0 ? (
+                      previewArticle ? (
+                        <NewsPreview article={previewArticle} />
+                      ) : (
+                        <div style={{ color: "#6b7280", fontWeight: 600 }}>
+                          {previewError || "Loading curated news…"}
+                        </div>
+                      )
+                    ) : i === 1 ? (
+                      <Card2PreviewChart data={card2Data} />
+                    ) : i === 3 ? (
+                      <WeatherImpactCard />
+                    ) : i === 2 ? (
+                      <TimeLocationCard />
+                    ) : i === 4 ? (
+                      /* ======== FLIP CARD: front shows WCS/WTI, back shows existing mini preview ======== */
+                      <div className="flip-wrap" aria-label="Crude benchmarks card (flip on hover)">
+                        <div className="flip-inner">
+                          <CrudeTwoStockFront />
+                          <CrudePreviewBack />
+                        </div>
+                      </div>
                     ) : (
-                      <div style={{ color: "#6b7280", fontWeight: 600 }}>
-                        {previewError || "Loading curated news…"}
-                      </div>
-                    )
-                  ) : i === 1 ? (
-                    <Card2PreviewChart data={card2Data} />
-                  ) : i === 3 ? (
-                    <WeatherImpactCard />
-                  ) : i === 2 ? (
-                    <TimeLocationCard />
-                  ) : i === 4 ? (
-                    /* ======== FLIP CARD: front shows WCS/WTI, back shows existing mini preview ======== */
-                    <div className="flip-wrap" aria-label="Crude benchmarks card (flip on hover)">
-                      <div className="flip-inner">
-                        <CrudeTwoStockFront />
-                        <CrudePreviewBack />
-                      </div>
-                    </div>
-                  ) : (
-                    <Cell i={i + 1} />
-                  )}
-                </div>
-              </StarBorder>
-            </div>
-          );
-        })}
+                      <Cell i={i + 1} />
+                    )}
+                  </div>
+                </StarBorder>
+              </div>
+            );
+          })}
+        </div>
       </div>
+      
 
       {/* Top-left BIG popup using ModalOverlay + NewsPopup */}
       <ModalOverlay open={newsOpen} onClose={() => setNewsOpen(false)}>
