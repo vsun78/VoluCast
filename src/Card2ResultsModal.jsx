@@ -71,6 +71,19 @@ export default function Card2ResultsModal({ data: incoming }) {
   const [open, setOpen] = useState(false);
   const [selectedKeys, setSelectedKeys] = useState(allKeys);
 
+  const locationLabels = [
+  "Toronto Facility",
+  "Hamilton Facility",
+  "North Bay Facility",
+  "Oshawa Facility",
+  "Ottawa Facility",
+  "Port Stanley Facility",
+  "Thunder Bay Facility",
+  "Brampton Facility",
+  "Windsor Facility",
+];
+
+
 
   const toggleKey = (key) => {
     if (key === "ALL") {
@@ -307,7 +320,7 @@ export default function Card2ResultsModal({ data: incoming }) {
               {allKeys.map((k, idx) => (
                 <MenuItem
                   key={k}
-                  label={`Location ${idx + 1}`}
+                  label={locationLabels[idx]}
                   checked={selectedKeys.includes(k)}
                   swatch={colors[idx]}
                   onChange={() => toggleKey(k)}
@@ -350,7 +363,7 @@ export default function Card2ResultsModal({ data: incoming }) {
                     key={key}
                     type="monotone"
                     dataKey={key}
-                    name={`Location ${idx + 1}`}
+                    name={locationLabels[idx]}
                     stroke={colors[idx]}
                     strokeWidth={2}
                     dot={false}

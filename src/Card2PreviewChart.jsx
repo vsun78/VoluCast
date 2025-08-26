@@ -78,6 +78,18 @@ export default function Card2PreviewChart({ data = [] }) {
     if (e.target.closest(".recharts-brush")) e.stopPropagation();
   };
 
+  const locationLabels = [
+  "Toronto Facility",
+  "Hamilton Facility",
+  "North Bay Facility",
+  "Oshawa Facility",
+  "Ottawa Facility",
+  "Port Stanley Facility",
+  "Thunder Bay Facility",
+  "Brampton Facility",
+  "Windsor Facility",
+];
+
   return (
     <div
       className="shared-font"
@@ -159,7 +171,7 @@ export default function Card2PreviewChart({ data = [] }) {
             {allKeys.map((k, idx) => (
               <MenuItem
                 key={k}
-                label={`Location ${idx + 1}`}
+                label={locationLabels[idx]}
                 checked={selectedKeys.includes(k)}
                 swatch={colors[idx]}
                 onChange={() => toggleKey(k)}
@@ -201,7 +213,7 @@ export default function Card2PreviewChart({ data = [] }) {
                   key={key}
                   type="monotone"
                   dataKey={key}
-                  name={`Location ${idx + 1}`}
+                  name={locationLabels[idx]}
                   stroke={colors[idx]}
                   strokeWidth={2}
                   dot={false}
