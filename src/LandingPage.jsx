@@ -97,7 +97,7 @@ export default function LandingPage() {
         <div className="landing-inner">
           <div className="login-card" ref={loginRef}>
             <h2 className="login-title">Welcome back</h2>
-            <p className="login-sub">Demo sign-in (placeholder)</p>
+            <p className="login-sub">Enter your MCA email below (placeholder)</p>
 
             <form className="login-form" onSubmit={handleLogin}>
               <label className="login-label">
@@ -113,7 +113,7 @@ export default function LandingPage() {
             </form>
 
             <p className="login-note">
-              This is a decoy login. Submitting will route you to the grid bento page.
+              Forgot your password? Contact the IT Department.
             </p>
           </div>
         </div>
