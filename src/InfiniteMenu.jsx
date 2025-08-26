@@ -836,8 +836,13 @@ const defaultItems = [
 
 export default function InfiniteMenu({ items = [] }) {
   const canvasRef = useRef(null);
-  const [activeItem, setActiveItem] = useState(null);
-  const [isMoving, setIsMoving] = useState(false);
+  const [activeItem, setActiveItem] = useState(items?.[0] ?? null);
+const [isMoving, setIsMoving] = useState(false);
+
+useEffect(() => {
+  if (items?.length) setActiveItem((prev) => prev ?? items[0]);
+}, [items]);
+
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -889,19 +894,15 @@ export default function InfiniteMenu({ items = [] }) {
       />
 
       {activeItem && (
-        <>
-          <h2 className={`face-title ${isMoving ? 'inactive' : 'active'}`}>
-            {activeItem.title}
-          </h2>
+  <>
+    <h2 className="face-title">{activeItem.title}</h2>
+    <p className="face-description">{activeItem.description}</p>
+    <div onClick={handleButtonClick} className="action-button">
+      <p className="action-button-icon">&#x2197;</p>
+    </div>
+  </>
+)}
 
-          <p className={`face-description ${isMoving ? 'inactive' : 'active'}`}> {activeItem.description}</p>
-
-          <div onClick={handleButtonClick} className={`action-button ${isMoving ? 'inactive' : 'active'}`}>
-            <p className="action-button-icon">&#x2197;</p>
-          </div>
-        </>
-      )
-      }
     </div >
   );
 }

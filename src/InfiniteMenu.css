@@ -1,5 +1,6 @@
-/* Note: this CSS is only an example, you can overlay whatever you want using the activeItem logic */
+/* InfiniteMenu.css */
 
+/* Canvas stays interactive and sits behind text */
 #infinite-grid-menu-canvas {
   cursor: grab;
   width: 100%;
@@ -7,16 +8,19 @@
   overflow: hidden;
   position: relative;
   outline: none;
+  z-index: 1;            /* ensure overlays can appear above */
+  background: transparent;
 }
 
 #infinite-grid-menu-canvas:active {
   cursor: grabbing;
 }
 
+/* Action button */
 .action-button {
   position: absolute;
   left: 50%;
-  z-index: 10;
+  z-index: 2;
   width: 60px;
   height: 60px;
   display: grid;
@@ -26,15 +30,11 @@
   border-radius: 50%;
   cursor: pointer;
   border: 5px solid #000;
-}
-
-.face-title {
-  user-select: none;
-  position: absolute;
-  font-weight: 900;
-  font-size: 4rem;
-  left: 1.6em;
-  top: 50%;
+  bottom: 3.8em;
+  transform: translateX(-50%) scale(1);
+  opacity: 1;
+  pointer-events: auto;
+  transition: 0.5s ease;
 }
 
 .action-button-icon {
@@ -45,72 +45,48 @@
   font-size: 26px;
 }
 
-.face-title {
-  position: absolute;
-  top: 50%;
-  transform: translate(20%, -50%);
-}
-
-.face-title.active {
-  opacity: 1;
-  transform: translate(20%, -50%);
-  pointer-events: auto;
-  transition: 0.5s ease;
-}
-
-.face-title.inactive {
-  pointer-events: none;
-  opacity: 0;
-  transition: 0.1s ease;
-}
-
+/* Centered, white labels on top of the image */
+.face-title,
 .face-description {
-  user-select: none;
   position: absolute;
-  max-width: 10ch;
-  top: 50%;
-  font-size: 1.5rem;
-  right: 1%;
-  transform: translate(0, -50%);
+  left: 50% !important;
+  color: #fff !important;
+  text-shadow: 0 2px 10px rgba(0,0,0,.45);
+  z-index: 2; /* above canvas and button ring */
 }
 
-.face-description.active {
-  opacity: 1;
-  transform: translate(-90%, -50%);
-  pointer-events: auto;
-  transition: 0.5s ease;
+/* Title: dead center */
+.face-title {
+  top: 50% !important;
+  transform: translate(-50%, -50%) !important;
+  font-weight: 800;
+  font-size: clamp(24px, 5vw, 56px);
+  text-align: center;
+  white-space: nowrap;
 }
 
+/* Description: just below title */
+.face-description {
+  top: calc(50% + 2.8rem) !important;
+  transform: translate(-50%, -50%) !important;
+  max-width: 28ch;
+  text-align: center;
+  font-size: clamp(12px, 1.8vw, 18px);
+  opacity: .95;
+}
+
+/* Never hide labels through state classes */
+.face-title.inactive,
 .face-description.inactive {
-  pointer-events: none;
-  transform: translate(-60%, -50%);
-  opacity: 0;
-  transition: 0.1s ease;
+  opacity: 1 !important;
 }
 
-.action-button {
-  position: absolute;
-  left: 50%;
+/* Responsive tweaks instead of hiding */
+@media (max-width: 1200px) {
+  .face-title { font-size: clamp(20px, 5.2vw, 46px); }
+  .face-description { font-size: clamp(12px, 2.6vw, 16px); top: calc(50% + 2.4rem) !important; }
 }
-
-.action-button.active {
-  bottom: 3.8em;
-  transform: translateX(-50%) scale(1);
-  opacity: 1;
-  pointer-events: auto;
-  transition: 0.5s ease;
-}
-
-.action-button.inactive {
-  bottom: -80px;
-  transform: translateX(-50%) scale(0);
-  opacity: 0;
-  pointer-events: none;
-  transition: 0.1s ease;
-}
-
-@media (max-width: 1500px) {
-  .face-title, .face-description {
-    display: none;
-  }
+@media (max-width: 800px) {
+  .face-title { font-size: clamp(18px, 6vw, 36px); }
+  .face-description { font-size: clamp(12px, 3.2vw, 15px); }
 }
