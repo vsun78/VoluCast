@@ -10,6 +10,7 @@
   outline: none;
   z-index: 1;            /* ensure overlays can appear above */
   background: transparent;
+  
 }
 
 #infinite-grid-menu-canvas:active {
@@ -25,7 +26,7 @@
   height: 60px;
   display: grid;
   place-items: center;
-  background: #5227FF;
+  background: #ec082e;
   border: none;
   border-radius: 50%;
   cursor: pointer;
