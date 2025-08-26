@@ -63,7 +63,7 @@ function CrudeTwoStockFront() {
   );
 }
 
-// BACK OF FLIP: your existing mini preview 
+// BACK OF FLIP: your existing mini preview
 function CrudePreviewBack() {
   return (
     <div className="flip-face flip-back">
@@ -118,40 +118,104 @@ export default function Bento_5_v4() {
 
   const card2Data = useMemo(() => makeFakeMonth(), []);
 
-  //Live preview article
+  // Live preview article
   const [previewArticle, setPreviewArticle] = useState(null);
+  const [previewError, setPreviewError] = useState("");
 
   useEffect(() => {
     async function loadPreview() {
+      const KEYWORDS = [
+        "asphalt","bitumen","paving","road construction","roadwork","infrastructure",
+        "crude oil","WTI","WCS","diesel","refinery","pipeline",
+        "aggregate","cement","shingles","construction spending",
+        "Bank of Canada","inflation","interest rates","CPI","infrastructure spending",
+        "carbon tax","fuel tax"
+      ];
+      const pickBest = (arts) => {
+        return (arts || [])
+          .sort((a, b) => {
+            const has = (x) =>
+              KEYWORDS.some((k) => (x.title || "").toLowerCase().includes(k.toLowerCase()));
+            return (has(b) ? 1 : 0) - (has(a) ? 1 : 0);
+          })[0];
+      };
+
+      const token = process.env.REACT_APP_NEWS_API_KEY;
+      if (!token) {
+        console.warn("REACT_APP_NEWS_API_KEY is missing");
+        setPreviewError("Missing API key");
+        return;
+      }
+
+      // Try 1: search with curated OR query (no country filter; it can suppress results)
+      const q1 =
+        'asphalt OR bitumen OR "road construction" OR paving OR infrastructure OR "crude oil" OR WTI OR WCS OR diesel OR refinery OR pipeline OR "Bank of Canada" OR inflation OR "interest rates" OR CPI OR "infrastructure spending"';
+      const url1 = `https://gnews.io/api/v4/search?q=${encodeURIComponent(
+        q1
+      )}&lang=en&max=10&token=${token}`;
+
+      // Try 2: energy/infrastructure narrower query
+      const q2 =
+        '"crude oil" OR bitumen OR diesel OR refinery OR pipeline OR asphalt OR infrastructure';
+      const url2 = `https://gnews.io/api/v4/search?q=${encodeURIComponent(
+        q2
+      )}&lang=en&max=10&token=${token}`;
+
+      // Try 3: fallback to business headlines (topic) if search returns nothing
+      const url3 = `https://gnews.io/api/v4/top-headlines?topic=business&lang=en&max=10&token=${token}`;
+
       try {
-        const resp = await fetch(
-          `https://gnews.io/api/v4/top-headlines?token=${process.env.REACT_APP_NEWS_API_KEY}&lang=en&country=ca&max=1`
-        );
-        const data = await resp.json();
-        if (data.articles && data.articles.length > 0) {
-          const a = data.articles[0];
+        const tryUrls = [url1, url2, url3];
+        let chosen = null;
+        for (const u of tryUrls) {
+          const r = await fetch(u);
+          const text = await r.text();
+          let json;
+          try {
+            json = JSON.parse(text);
+          } catch (e) {
+            console.error("Non-JSON response from GNews:", text);
+            continue;
+          }
+          if (!json || !json.articles) {
+            console.warn("GNews empty payload:", json);
+            continue;
+          }
+          const best = pickBest(json.articles);
+          if (best) {
+            chosen = best;
+            break;
+          }
+        }
+
+        if (chosen) {
           setPreviewArticle({
             id: "preview",
-            title: a.title,
-            source: a.source?.name || "",
-            time: new Date(a.publishedAt).toLocaleString([], {
+            title: chosen.title,
+            source: chosen.source?.name || "",
+            time: new Date(chosen.publishedAt).toLocaleString([], {
               hour: "2-digit",
               minute: "2-digit",
               day: "numeric",
               month: "short",
             }),
-            url: a.url,
-            imageUrl:
-              a.image || "https://via.placeholder.com/600x400?text=No+Image",
+            url: chosen.url,
+            imageUrl: chosen.image || "https://via.placeholder.com/600x400?text=No+Image",
           });
+          setPreviewError("");
+        } else {
+          setPreviewArticle(null);
+          setPreviewError("No curated news found");
         }
       } catch (err) {
         console.error("Preview news fetch failed:", err);
+        setPreviewArticle(null);
+        setPreviewError("News fetch failed");
       }
     }
 
     loadPreview();
-    const id = setInterval(loadPreview, 60 * 60 * 1000); // 60 min
+    const id = setInterval(loadPreview, 60 * 60 * 1000); // refresh every hour
     return () => clearInterval(id);
   }, []);
 
@@ -228,7 +292,13 @@ export default function Bento_5_v4() {
                   style={clickable ? { cursor: "pointer" } : undefined}
                 >
                   {i === 0 ? (
-                    <NewsPreview article={previewArticle} />
+                    previewArticle ? (
+                      <NewsPreview article={previewArticle} />
+                    ) : (
+                      <div style={{ color: "#6b7280", fontWeight: 600 }}>
+                        {previewError || "Loading curated news…"}
+                      </div>
+                    )
                   ) : i === 1 ? (
                     <Card2PreviewChart data={card2Data} />
                   ) : i === 3 ? (
@@ -274,12 +344,14 @@ export default function Bento_5_v4() {
                 <Card2ResultsModal data={card2Data} />
               ) : activeModal === 2 ? (
                 <div style={{ flex: 1, minHeight: 0 }}>
-                  <InfiniteMenu items={[
-                    { image: "/ontario.jpg", title: "ONTARIO REGION", link: "#toronto" },
-                    { image: "/quebec.png", title: "QUEBEC REGION", link: "#ottawa" },
-                    { image: "/atlantic.png", title: "ATLANTIC REGION", link: "#kingston" },
-                    { image: "/west.png", title: "WEST REGION", link: "#hamilton" },
-                  ]}/>
+                  <InfiniteMenu
+                    items={[
+                      { image: "/ontario.jpg", title: "ONTARIO REGION", link: "#toronto" },
+                      { image: "/quebec.png", title: "QUEBEC REGION", link: "#ottawa" },
+                      { image: "/atlantic.png", title: "ATLANTIC REGION", link: "#kingston" },
+                      { image: "/west.png", title: "WEST REGION", link: "#hamilton" },
+                    ]}
+                  />
                 </div>
               ) : activeModal === 4 ? (
                 <CrudeStocksPopup />
