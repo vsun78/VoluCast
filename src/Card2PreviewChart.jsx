@@ -187,7 +187,7 @@ export default function Card2PreviewChart({ data = [] }) {
 
       <div style={{ flex: 1, minHeight: 300 }}>
         <ResponsiveContainer width="100%" height="100%">
-          <LineChart data={rows} margin={{ top: 8, right: 12, bottom: 10, left: 0 }}>
+          <LineChart data={rows} margin={{ top: 8, right: 12, bottom: 10, left: 2 }}>
             <CartesianGrid strokeDasharray="3 3" />
             <XAxis
               dataKey="date"
@@ -199,7 +199,15 @@ export default function Card2PreviewChart({ data = [] }) {
               tick={{ fontSize: 12 }}
               tickFormatter={(d) => d.slice(5).replace("-", "/")}
             />
-            <YAxis tick={{ fontSize: 12 }} />
+            <YAxis
+  tick={{ fontSize: 12 }}
+  label={{
+    value: "Tonnes",
+    angle: -90,
+    position: "insideLeft",
+    style: { textAnchor: "middle" }
+  }}
+/>
             <Tooltip
               contentStyle={{ borderRadius: 8, borderColor: "#e5e7eb", fontSize: 12 }}
               labelStyle={{ fontWeight: 700 }}
@@ -228,7 +236,7 @@ export default function Card2PreviewChart({ data = [] }) {
               className="vc-brush vc-brush--slate"
               dataKey="date"
               height={26}
-              travellerWidth={3}
+              travellerWidth={5}
               stroke="#334155"
               fill="rgba(51,65,85,0.10)"
             />

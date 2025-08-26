@@ -337,7 +337,7 @@ export default function Card2ResultsModal({ data: incoming }) {
         {/* Chart */}
         <div style={{ flex: 1, minHeight: 0 }} onPointerDown={stopIfBrush}>
           <ResponsiveContainer width="100%" height="100%">
-            <LineChart data={rows} margin={{ top: 8, right: 12, bottom: 10, left: 0 }}>
+            <LineChart data={rows} margin={{ top: 8, right: 12, bottom: 10, left: 2 }}>
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis
                 dataKey="date"
@@ -349,8 +349,14 @@ export default function Card2ResultsModal({ data: incoming }) {
                 tick={{ fontSize: 12 }}
                 tickFormatter={(d) => d.slice(5).replace("-", "/")}
               />
-              <YAxis tick={{ fontSize: 12 }} />
-              <Tooltip
+              <YAxis
+                tick={{ fontSize: 12 }}
+                label={{
+                  value: "Tonnes",
+                  angle: -90,
+                  position: "insideLeft",
+                  style: { textAnchor: "middle" }
+                }}
                 contentStyle={{ borderRadius: 8, borderColor: "#e5e7eb", fontSize: 12 }}
                 labelStyle={{ fontWeight: 700 }}
                 labelFormatter={(d) => d.replace(/-/g, "/")}
