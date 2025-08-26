@@ -68,7 +68,6 @@ function isWeekendYMD(iso) {
   const day = new Date(y, m - 1, d).getDay(); // 0=Sun ... 6=Sat
   return day === 0 || day === 6;
 }
-
 function formatWeekday(iso, tzId) {
   const dt = new Date(`${iso}T12:00:00`);
   return new Intl.DateTimeFormat("en-CA", { weekday: "short", timeZone: tzId }).format(dt);
@@ -80,8 +79,7 @@ function fakeWeather(tzId = "UTC") {
   function nextBiz(startShift) {
     let d = new Date(base);
     d.setDate(d.getDate() + startShift);
-    // move to tomorrow first
-    d.setDate(d.getDate() + 1);
+    d.setDate(d.getDate() + 1); // start from tomorrow
     while (d.getDay() === 0 || d.getDay() === 6) d.setDate(d.getDate() + 1);
     const yyyy = d.getFullYear();
     const mm = String(d.getMonth() + 1).padStart(2, "0");
@@ -105,10 +103,25 @@ function fakeWeather(tzId = "UTC") {
   };
 }
 
-export default function WeatherImpactCard({ lat = 43.67, lng = -79.42 }) {
+export default function WeatherImpactCard() {
+  // Start synced with TimeLocationCard's default (Toronto)
+  const [coords, setCoords] = useState({ lat: 43.6532, lng: -79.3832 });
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
 
+  // Listen for the same event TimeLocationCard uses: `set-map-location`
+  useEffect(() => {
+    const handler = (e) => {
+      const { lat, lng } = e.detail || {};
+      if (typeof lat === "number" && typeof lng === "number") {
+        setCoords({ lat, lng });
+      }
+    };
+    window.addEventListener("set-map-location", handler);
+    return () => window.removeEventListener("set-map-location", handler);
+  }, []);
+
+  // Fetch weather whenever coords change
   useEffect(() => {
     let cancelled = false;
     (async () => {
@@ -117,10 +130,9 @@ export default function WeatherImpactCard({ lat = 43.67, lng = -79.42 }) {
       try {
         if (!key) throw new Error("Missing REACT_APP_WEATHER_API_KEY");
 
-        // Ask for up to 7 days so we can skip weekends
         const url =
           `https://api.weatherapi.com/v1/forecast.json?key=${encodeURIComponent(key)}` +
-          `&q=${lat},${lng}&days=7&aqi=no&alerts=no`;
+          `&q=${coords.lat},${coords.lng}&days=7&aqi=no&alerts=no`;
 
         const res = await fetch(url);
         if (!res.ok) {
@@ -130,13 +142,10 @@ export default function WeatherImpactCard({ lat = 43.67, lng = -79.42 }) {
         const json = await res.json();
 
         const tzId = json.location?.tz_id || "UTC";
-
-        // Determine "today" in the provider's local time zone
         const localDateStr =
           (json.location?.localtime || "").split(" ")[0] ||
           (json.forecast?.forecastday?.[0]?.date ?? null);
 
-        // Current
         const curr = json.current || {};
         const conditionText = curr.condition?.text || "";
         const cloudsApprox =
@@ -148,28 +157,22 @@ export default function WeatherImpactCard({ lat = 43.67, lng = -79.42 }) {
         const condition = normalizeCondition(conditionText, cloudsApprox);
         const currentC = Math.round(curr.temp_c ?? 0);
 
-        // Today's actual hi/lo from provider's first day
         const todayObj = (json.forecast?.forecastday || []).find(
           (fd) => fd?.date === localDateStr
         );
         const todayHi = Math.round(todayObj?.day?.maxtemp_c ?? 0);
         const todayLo = Math.round(todayObj?.day?.mintemp_c ?? 0);
 
-        // Build business-day sequence: **start from TOMORROW**, skip Sat/Sun
         const daysRaw = json.forecast?.forecastday || [];
         const biz = [];
         let passedToday = false;
 
         for (const fd of daysRaw) {
           if (!passedToday) {
-            // advance until we pass "today"
-            if (fd.date === localDateStr) {
-              passedToday = true; // next iterations will be tomorrow+
-            }
+            if (fd.date === localDateStr) passedToday = true;
             continue;
           }
-
-          if (isWeekendYMD(fd.date)) continue; // skip weekends
+          if (isWeekendYMD(fd.date)) continue;
 
           const txt = fd.day?.condition?.text || "";
           let icon = normalizeCondition(
@@ -177,7 +180,6 @@ export default function WeatherImpactCard({ lat = 43.67, lng = -79.42 }) {
             txt.toLowerCase().includes("cloud") ? 50 : 0
           );
 
-          // prefer precip probabilities when choosing icon
           const chanceRain = Number(fd.day?.daily_chance_of_rain ?? 0);
           const chanceSnow = Number(fd.day?.daily_chance_of_snow ?? 0);
           if (chanceSnow >= 30) icon = "Light Rain";
@@ -200,7 +202,7 @@ export default function WeatherImpactCard({ lat = 43.67, lng = -79.42 }) {
             currentC,
             todayHi,
             todayLo,
-            forecast: biz, // tomorrow + next 2 business days
+            forecast: biz,
           });
         }
       } catch (e) {
@@ -213,7 +215,7 @@ export default function WeatherImpactCard({ lat = 43.67, lng = -79.42 }) {
     return () => {
       cancelled = true;
     };
-  }, [lat, lng]);
+  }, [coords.lat, coords.lng]);
 
   const Icon = useMemo(() => ICONS[data?.condition || "Sunny"] || Sun, [data]);
 
@@ -229,9 +231,7 @@ export default function WeatherImpactCard({ lat = 43.67, lng = -79.42 }) {
         <div className="wi-icon"><Icon /></div>
         <div className="wi-info">
           <div className="wi-cond">{data.condition}</div>
-          {/* Big number is CURRENT temperature in °C */}
           <div className="wi-impact">{data.currentC}°</div>
-          {/* Show today's High/Low in the pill */}
           <div className="wi-pill">
             H: {data.todayHi}° &nbsp;·&nbsp; L: {data.todayLo}°
           </div>
