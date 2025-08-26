@@ -162,8 +162,6 @@
 /*
   DRAMATIC LOAD-INS
   */
-
-/* The trick: we give each wrapper directional starting vars. */
 .bento-grid .bento-cell-wrapper{
   --startX: 0px;
   --startY: 0px;
@@ -177,12 +175,11 @@
   will-change: transform, opacity, filter;
 }
 
-/* Define direction presets */
+/* direction presets */
 .bento-cell-wrapper.dir-left   { --startX: -110px; --startRot: -4deg; }
 .bento-cell-wrapper.dir-right  { --startX:  110px; --startRot:  4deg; }
 .bento-cell-wrapper.dir-top    { --startY: -110px; --startRot:  2deg; }
 .bento-cell-wrapper.dir-bottom { --startY:  110px; --startRot: -2deg; }
-/* extra spice: diagonal */
 .bento-cell-wrapper.dir-diag   { --startX: -120px; --startY: 90px; --startRot: -6deg; }
 
 /*  Site Logo  */
@@ -192,15 +189,12 @@
   left: 20px;
   z-index: 1200;            
 }
-
 .site-logo img {
-  height: 45px;               
+  height: 45px;
   width: auto;
   display: block;
-
-   /*  some glow to the logo */
   box-shadow: 0 0 12px rgba(255, 255, 255, 0.6);
-  border-radius: 14px;   
+  border-radius: 14px;
   background: transparent;
 }
 
@@ -208,12 +202,9 @@
   0%   { opacity: 0; transform: translate3d(var(--startX), var(--startY), 0) rotate(var(--startRot)) scale(var(--startScale)); filter: blur(var(--blur)); }
   100% { opacity: 1; transform: translate3d(0,0,0) rotate(0deg) scale(1); filter: blur(0); }
 }
-
 .bento-grid.is-loaded .bento-cell-wrapper{
   animation: cardIn 1.35s cubic-bezier(.16,1,.3,1) forwards;
 }
-
-
 .vc-brush .recharts-brush-rect,
 .vc-brush .recharts-brush-slide,
 .vc-brush .recharts-brush rect,
@@ -221,13 +212,11 @@
   rx: 12px !important;
   ry: 12px !important;
 }
-
 .vc-brush.vc-brush--slate .recharts-brush-rect,
 .vc-brush.vc-brush--slate .recharts-brush-slide {
   fill: rgba(51, 65, 85, 0.12);
   stroke: #334155;
 }
-
 .vc-brush .recharts-brush-traveller rect {
   rx: 12px !important;
   ry: 12px !important;
@@ -235,16 +224,11 @@
   stroke: #334155;
   transition: transform .18s ease, opacity .18s ease;
 }
-
 .vc-brush .recharts-brush-traveller line,
-.vc-brush .recharts-brush-traveller path {
-  stroke-linecap: round;
-}
-
+.vc-brush .recharts-brush-traveller path { stroke-linecap: round; }
 .vc-brush .recharts-brush-traveller:hover rect { opacity: 0.9; }
 .vc-brush .recharts-brush rect { shape-rendering: geometricPrecision; }
 .vc-brush .recharts-brush-traveller { transition: transform .18s ease; }
-
 
 .bento-grid.is-loaded .bento-cell-wrapper:nth-child(1){ animation-delay: .08s; }
 .bento-grid.is-loaded .bento-cell-wrapper:nth-child(2){ animation-delay: .22s; }
@@ -254,11 +238,46 @@
 .bento-grid.is-loaded .bento-cell-wrapper:nth-child(6){ animation-delay: .78s; }
 .bento-grid.is-loaded .bento-cell-wrapper:nth-child(7){ animation-delay: .92s; }
 .bento-grid.is-loaded .bento-cell-wrapper:nth-child(8){ animation-delay: 1.06s; }
-
 .bento-grid.is-loaded .bento-cell-wrapper.span-big{ animation-duration: 1.55s; }
 
-/* Respect user's motion settings */
+/* Respect reduced motion */
 @media (prefers-reduced-motion: reduce){
   .bento-grid .bento-cell-wrapper{ opacity:1; transform:none; filter:none; }
   .bento-grid.is-loaded .bento-cell-wrapper{ animation:none; }
 }
+
+/* ======= NEW: flip card for crude stocks ======= */
+.flip-wrap{ perspective: 1200px; width:100%; height:100%; }
+.flip-inner{
+  position:relative; width:100%; height:100%;
+  transform-style: preserve-3d;
+  transition: transform .55s cubic-bezier(.2,.7,.2,1);
+}
+.bento-cell:hover .flip-inner{ transform: rotateY(180deg); }
+.flip-face{
+  position:absolute; inset:0; backface-visibility:hidden; border-radius:16px; overflow:hidden;
+}
+
+/* Front: two-stock mini layout */
+.two-stock-front{
+  background:#1f2937; /* slate background */
+  display:flex; flex-direction:column; gap:10px; padding:14px;
+}
+.stock-row{
+  background:#374151; /* grey row */
+  border:1px solid rgba(255,255,255,.06);
+  border-radius:12px;
+  padding:12px 14px;
+  display:flex; align-items:center; justify-content:space-between;
+}
+.stock-left{ display:flex; flex-direction:column; }
+.stock-ticker{ color:#fff; font-weight:800; font-size:14px; letter-spacing:.3px; }
+.stock-name{ color:#cbd5e1; font-size:12px; margin-top:2px; }
+.stock-right{ display:flex; align-items:center; gap:10px; }
+.stock-price{ color:#fff; font-weight:800; font-variant-numeric: tabular-nums; }
+.stock-pct{ font-weight:800; font-variant-numeric: tabular-nums; }
+.stock-pct.up{ color:#22c55e; }  /* green */
+.stock-pct.down{ color:#ef4444; }/* red */
+
+/* Back: existing preview side */
+.flip-back{ transform: rotateY(180deg); }

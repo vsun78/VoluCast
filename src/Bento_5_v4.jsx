@@ -13,9 +13,7 @@ import NewsPreview from "./Components/NewsPreview";
 
 import ModalOverlay from "./ModalOverlay";
 import NewsPopup from "./NewsPopup"; // news/politics content
-
-
-import InfiniteMenu from "./InfiniteMenu"; 
+import InfiniteMenu from "./InfiniteMenu";
 
 const cells = [1, 2, 3, 4, 5];
 export const Cell = ({ i = 0 }) => <div className="fallback-cell">Card {i}</div>;
@@ -34,33 +32,78 @@ function makeFakeMonth() {
   return out;
 }
 
-// 4 item options for the InfiniteMenu 
-const tlMenuItems = [
-  {
-    image: "/ontario.jpg",
-    title: "ONTARIO REGION",
-    //description: "Downtown core & GTA",
-    link: "#toronto",
-  },
-  {
-    image: "/quebec.png",
-    title: "QUEBEC REGION",
-    //description: "Capital region",
-    link: "#ottawa",
-  },
-  {
-    image: "/atlantic.png",
-    title: "ATLANTIC REGION",
-    //description: "Limestone City",
-    link: "#kingston",
-  },
-  {
-    image: "/west.png",
-    title: "WEST REGION",
-    //description: "Bayfront & steel",
-    link: "#hamilton",
-  },
-];
+// Simple helper for coloring %
+const pctClass = (n) => (Number(n) >= 0 ? "stock-pct up" : "stock-pct down");
+
+// FRONT OF FLIP: two-stock compact layout
+function CrudeTwoStockFront() {
+  // TODO: wire to live values when ready
+  const data = [
+    { ticker: "WCS", name: "Western Canada Select", price: "$61.12", pct: +1.8 },
+    { ticker: "WTI", name: "West Texas Intermediate", price: "$78.45", pct: +2.3 },
+  ];
+  return (
+    <div className="flip-face two-stock-front">
+      {data.map((s) => (
+        <div key={s.ticker} className="stock-row">
+          <div className="stock-left">
+            <div className="stock-ticker">{s.ticker}</div>
+            <div className="stock-name">{s.name}</div>
+          </div>
+          <div className="stock-right">
+            <div className="stock-price">{s.price}</div>
+            <div className={pctClass(s.pct)}>
+              {s.pct > 0 ? "+" : ""}
+              {s.pct.toFixed(1)}%
+            </div>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+// BACK OF FLIP: your existing mini preview (kept exactly as before)
+function CrudePreviewBack() {
+  return (
+    <div className="flip-face flip-back">
+      <div
+        style={{
+          position: "relative",
+          display: "flex",
+          flexDirection: "column",
+          width: "100%",
+          height: "100%",
+          background: "#ffffff",
+        }}
+      >
+        <div
+          style={{
+            position: "absolute",
+            top: 10,
+            left: 14,
+            fontWeight: 700,
+            fontSize: 16,
+            color: "#111827",
+          }}
+        >
+          WTI &amp; U.S. Crude Stocks
+        </div>
+        <div
+          style={{
+            flex: 1,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            padding: "28px 14px 14px",
+          }}
+        >
+          <OilBarCard weeks={6} height={120} />
+        </div>
+      </div>
+    </div>
+  );
+}
 
 export default function Bento_5_v4() {
   const [activeModal, setActiveModal] = useState(null);
@@ -108,7 +151,7 @@ export default function Bento_5_v4() {
     }
 
     loadPreview();
-    const id = setInterval(loadPreview, 60 * 60 * 1000); // auto refresh every 60 min
+    const id = setInterval(loadPreview, 60 * 60 * 1000); // 60 min
     return () => clearInterval(id);
   }, []);
 
@@ -118,7 +161,6 @@ export default function Bento_5_v4() {
     return () => window.removeEventListener("keydown", onKey);
   }, []);
 
-  // lock scroll when legacy modal is open
   useEffect(() => {
     if (activeModal !== null) {
       document.body.style.overflow = "hidden";
@@ -128,23 +170,17 @@ export default function Bento_5_v4() {
     }
   }, [activeModal]);
 
- 
   const hasPopup = (i) => i === 0 || i === 1 || i === 2 || i === 4;
-
-  // Open the appropriate popup for a card  (ADDED: case for i === 2)
   const openForIndex = (i) => {
     if (i === 0) setNewsOpen(true);
     else if (i === 1) setActiveModal(1);
     else if (i === 2) setActiveModal(2); // Time & Location → InfiniteMenu
-    else if (i === 4) setActiveModal(4);
+    else if (i === 4) setActiveModal(4); // Crude stocks
   };
-
   const startClose = () => {
     setModalPhase("exit");
     setTimeout(() => setActiveModal(null), 250);
   };
-
-  // keyboard activation for accessibility
   const keyActivate = (i) => (e) => {
     if (!hasPopup(i)) return;
     if (e.key === "Enter" || e.key === " ") {
@@ -152,22 +188,14 @@ export default function Bento_5_v4() {
       openForIndex(i);
     }
   };
-
-  // Choose a dramatic direction per index
   const dirFor = (i) => {
     switch (i) {
-      case 0:
-        return "dir-left"; // News card: fly from left
-      case 1:
-        return "dir-top"; // 2x2 feature: drop from top
-      case 2:
-        return "dir-right"; // Time/Location: from right
-      case 3:
-        return "dir-bottom"; // Weather: from bottom
-      case 4:
-        return "dir-diag"; // Oil chart: diagonal
-      default:
-        return "dir-top";
+      case 0: return "dir-left";
+      case 1: return "dir-top";
+      case 2: return "dir-right";
+      case 3: return "dir-bottom";
+      case 4: return "dir-diag";
+      default: return "dir-top";
     }
   };
 
@@ -208,40 +236,11 @@ export default function Bento_5_v4() {
                   ) : i === 2 ? (
                     <TimeLocationCard />
                   ) : i === 4 ? (
-                    <div
-                      style={{
-                        position: "relative",
-                        display: "flex",
-                        flexDirection: "column",
-                        width: "100%",
-                        height: "100%",
-                      }}
-                    >
-                      {/* Title pinned top-left */}
-                      <div
-                        style={{
-                          position: "absolute",
-                          top: 10,
-                          left: 14,
-                          fontWeight: 700,
-                          fontSize: 16,
-                          color: "#111827",
-                        }}
-                      >
-                        WTI &amp; U.S. Crude Stocks
-                      </div>
-
-                     
-                      <div
-                        style={{
-                          flex: 1,
-                          display: "flex",
-                          alignItems: "center",
-                          justifyContent: "center",
-                          padding: "28px 14px 14px",
-                        }}
-                      >
-                        <OilBarCard weeks={6} height={120} />
+                    /* ======== FLIP CARD: front shows WCS/WTI, back shows existing mini preview ======== */
+                    <div className="flip-wrap" aria-label="Crude benchmarks card (flip on hover)">
+                      <div className="flip-inner">
+                        <CrudeTwoStockFront />
+                        <CrudePreviewBack />
                       </div>
                     </div>
                   ) : (
@@ -259,7 +258,6 @@ export default function Bento_5_v4() {
         <NewsPopup onClose={() => setNewsOpen(false)} />
       </ModalOverlay>
 
-      
       {activeModal !== null && (
         <div
           className={`modal-backdrop ${modalPhase === "exit" ? "closing" : ""}`}
@@ -275,11 +273,14 @@ export default function Bento_5_v4() {
               {activeModal === 1 ? (
                 <Card2ResultsModal data={card2Data} />
               ) : activeModal === 2 ? (
-                
-                  <div style={{ flex: 1, minHeight: 0 }}>
-                    <InfiniteMenu items={tlMenuItems} />
-                  </div>
-                
+                <div style={{ flex: 1, minHeight: 0 }}>
+                  <InfiniteMenu items={[
+                    { image: "/ontario.jpg", title: "ONTARIO REGION", link: "#toronto" },
+                    { image: "/quebec.png", title: "QUEBEC REGION", link: "#ottawa" },
+                    { image: "/atlantic.png", title: "ATLANTIC REGION", link: "#kingston" },
+                    { image: "/west.png", title: "WEST REGION", link: "#hamilton" },
+                  ]}/>
+                </div>
               ) : activeModal === 4 ? (
                 <CrudeStocksPopup />
               ) : (
