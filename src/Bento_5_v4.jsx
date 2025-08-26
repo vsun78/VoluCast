@@ -15,6 +15,8 @@ import ModalOverlay from "./ModalOverlay";
 import NewsPopup from "./NewsPopup"; // news/politics content
 import InfiniteMenu from "./InfiniteMenu";
 
+import TextType from "./TextType";
+
 const cells = [1, 2, 3, 4, 5];
 export const Cell = ({ i = 0 }) => <div className="fallback-cell">Card {i}</div>;
 
@@ -272,7 +274,15 @@ export default function Bento_5_v4() {
       
       <div className="bento-inner">
         
-        <div className="hello-user">Hello Edmund!</div>
+        <div className="hello-user">
+  <TextType
+    text={["Hello Edmund!", "Welcome to VoluCast", "Sales are looking good today!"]}
+    typingSpeed={75}
+    pauseDuration={1500}
+    showCursor={true}
+    cursorCharacter="|"
+  />
+</div>
 
         <div className={`bento-grid ${loaded ? "is-loaded" : ""}`}>
           {cells.map((n, i) => {
