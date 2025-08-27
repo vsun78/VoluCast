@@ -118,7 +118,17 @@ export default function Bento_5_v4() {
     return () => cancelAnimationFrame(id);
   }, []);
 
-  const card2Data = useMemo(() => makeFakeMonth(), []);
+
+const card2Data = [
+  { date: "2025-09-01", loc1: 394.91, loc2: 430.18, loc3: 373.57, loc4: 248.64, loc5: 334.31, loc6: 327.33, loc7: 214.55, loc8: 343.69, loc9: 247.26 },
+  { date: "2025-09-02", loc1: 403.41, loc2: 355.5, loc3: 230.5, loc4: 196.31, loc5: 415.56, loc6: 306.57, loc7: 195.63, loc8: 193.47, loc9: 298.32 },
+  { date: "2025-09-03", loc1: 374.62, loc2: 379.94, loc3: 391.45, loc4: 285.54, loc5: 369.6, loc6: 393.45, loc7: 260.77, loc8: 350.05, loc9: 303.12 },
+  { date: "2025-09-04", loc1: 400.94, loc2: 268.25, loc3: 268.25, loc4: 352.26, loc5: 370.18, loc6: 341, loc7: 247, loc8: 374.17, loc9: 319.51 },
+  { date: "2025-09-05", loc1: 469.5, loc2: 355.08, loc3: 355.08, loc4: 349.24, loc5: 247.54, loc6: 354.08, loc7: 300.79, loc8: 363.35, loc9: 270.38 },
+  { date: "2025-09-06", loc1: 497.43, loc2: 374.45, loc3: 374.45, loc4: 338.93, loc5: 416.4, loc6: 326.11, loc7: 353.39, loc8: 392.45, loc9: 316.71 },
+  { date: "2025-09-07", loc1: 391.44, loc2: 379, loc3: 379, loc4: 398.83, loc5: 355.35, loc6: 391.33, loc7: 370.79, loc8: 339.52, loc9: 350.66 },
+];
+
 
   // Live preview article
   const [previewArticle, setPreviewArticle] = useState(null);

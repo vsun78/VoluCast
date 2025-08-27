@@ -44,24 +44,7 @@ export default function Card2ResultsModal({ data: incoming }) {
     "#06b6d4", "#dc2626", "#16a34a", "#ea580c",
   ];
 
-  const rows = useMemo(() => {
-    const base7 = raw.slice(-7);
-    return dates.map((date, i) => {
-      const point = { date };
-      for (let loc = 0; loc < 9; loc++) {
-        const seed =
-          base7[i % base7.length]?.volume ??
-          base7[base7.length - 1]?.volume ??
-          320;
-        const swing =
-          (55 + loc * 3) * Math.sin((i + 1 + loc * 0.3) / (1.2 + loc * 0.03)) +
-          (22 + loc * 1.5) * Math.sin(i * (2.4 + loc * 0.05)) +
-          (Math.random() - 0.5) * (24 + loc * 1.2);
-        point[`loc${loc + 1}`] = Math.max(160, Math.round(seed + swing));
-      }
-      return point;
-    });
-  }, [raw, dates]);
+  const rows = incoming;
 
   const startDisplay = "2025/09/01";
   const endDisplay = "2025/09/07";

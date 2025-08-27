@@ -25,24 +25,8 @@ export default function Card2PreviewChart({ data = [] }) {
     "#06b6d4", "#dc2626", "#16a34a", "#ea580c",
   ];
 
-  const rows = useMemo(() => {
-    const base7 = (data.length ? data : [{ volume: 320 }]).slice(-7);
-    return dates.map((date, i) => {
-      const point = { date };
-      for (let loc = 0; loc < 9; loc++) {
-        const seed =
-          base7[i % base7.length]?.volume ??
-          base7[base7.length - 1]?.volume ??
-          320;
-        const swing =
-          (50 + loc * 2.5) * Math.sin((i + 0.8 + loc * 0.25) / (1.15 + loc * 0.03)) +
-          (20 + loc * 1.2) * Math.sin(i * (2.3 + loc * 0.05)) +
-          (Math.random() - 0.5) * (22 + loc * 1.1);
-        point[`loc${loc + 1}`] = Math.max(160, Math.round(seed + swing));
-      }
-      return point;
-    });
-  }, [data, dates]);
+  const rows = data; // use whatever was passed in directly
+
 
   const startDisplay = "2025/09/01";
   const endDisplay = "2025/09/07";
