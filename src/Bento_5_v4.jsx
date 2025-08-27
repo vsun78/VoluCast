@@ -286,7 +286,7 @@ const card2Data = [
         
         <div className="hello-user">
   <TextType
-    text={["Hello Edmund! 🙂", "Welcome to VoluCast.", "Sales are looking good today! 🤩"]}
+    text={["Hello David! 🙂", "Welcome to VoluCast.", "Sales are looking good today! 🤩"]}
     typingSpeed={75}
     pauseDuration={1500}
     showCursor={true}
