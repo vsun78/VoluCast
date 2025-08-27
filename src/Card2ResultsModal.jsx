@@ -130,29 +130,29 @@ export default function Card2ResultsModal({ data: incoming }) {
             justifyContent: "space-around",
           }}
         >
-          <div style={{ fontSize: 14, fontWeight: 600, color: "#6b7280" }}>
-            Confidence
+          <div style={{ fontSize: 14, fontWeight: 600, color: "#6b7280" , textAlign: "center",}}>
+            Confidence Score
           </div>
           <div
-            style={{
-              marginTop: 12,
-              display: "flex",
-              alignItems: "baseline",
-              gap: 8,
-            }}
-          >
-            <NumberTicker
-              value={87}
-              startValue={0}
-              decimalPlaces={0}
-              delay={0.2}
-              style={{ fontSize: 36, fontWeight: 800, lineHeight: 1 }}
-            />
-            <span style={{ fontSize: 28, fontWeight: 800, lineHeight: 1 }}>
-              %
-            </span>
-            <span style={{ fontSize: 14, color: "#6b7280" }}>for today</span>
-          </div>
+  style={{
+    marginTop: 12,
+    display: "flex",
+    alignItems: "baseline",
+    justifyContent: "center",   // centers the children
+    gap: 8,
+  }}
+>
+  <NumberTicker
+    value={87}
+    startValue={0}
+    decimalPlaces={0}
+    delay={0.2}
+    style={{ fontSize: 36, fontWeight: 800, lineHeight: 1 }}
+  />
+  <span style={{ fontSize: 28, fontWeight: 800, lineHeight: 1 }}>%</span>
+  <span style={{ fontSize: 14, color: "#6b7280" }}>for today</span>
+</div>
+
           <div
             style={{
               marginTop: 16,
