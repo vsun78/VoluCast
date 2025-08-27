@@ -72,18 +72,16 @@ export default function Card2ResultsModal({ data: incoming }) {
   const [selectedKeys, setSelectedKeys] = useState(allKeys);
 
   const locationLabels = [
-  "Toronto Facility",
-  "Hamilton Facility",
-  "North Bay Facility",
-  "Oshawa Facility",
-  "Ottawa Facility",
-  "Port Stanley Facility",
-  "Thunder Bay Facility",
-  "Brampton Facility",
-  "Windsor Facility",
-];
-
-
+    "Toronto Facility",
+    "Hamilton Facility",
+    "North Bay Facility",
+    "Oshawa Facility",
+    "Ottawa Facility",
+    "Port Stanley Facility",
+    "Thunder Bay Facility",
+    "Brampton Facility",
+    "Windsor Facility",
+  ];
 
   const toggleKey = (key) => {
     if (key === "ALL") {
@@ -182,7 +180,9 @@ export default function Card2ResultsModal({ data: incoming }) {
               overflow: "hidden",
             }}
           >
-            <div style={{ width: "87%", height: "100%", background: "#34d399" }} />
+            <div
+              style={{ width: "87%", height: "100%", background: "#34d399" }}
+            />
           </div>
           <div style={{ marginTop: 12, fontSize: 14, color: "#4b5563" }}>
             Prediction interval (80%):{" "}
@@ -239,11 +239,11 @@ export default function Card2ResultsModal({ data: incoming }) {
           >
             <li>Rain probability ↑ expected to lower hauling efficiency.</li>
             <li>Temperature near seasonal average; minimal thermal impact.</li>
-            <li>Weekday pattern: mid‑week volumes typically stronger.</li>
-            <li>Prior 7‑day trend suggests mild mean‑reversion.</li>
+            <li>Weekday pattern: mid-week volumes typically stronger.</li>
+            <li>Prior 7-day trend suggests mild mean-reversion.</li>
           </ul>
           <div style={{ marginTop: 12, fontSize: 13, color: "#4b5563" }}>
-            What‑ifs: <b>No rain (+3–5%)</b>, <b>+5 °C (+1–2%)</b>.
+            What-ifs: <b>No rain (+3–5%)</b>, <b>+5 °C (+1–2%)</b>.
           </div>
         </section>
       </div>
@@ -263,7 +263,7 @@ export default function Card2ResultsModal({ data: incoming }) {
         }}
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Header with title  dropdown  dates */}
+        {/* Header with title dropdown dates */}
         <div
           style={{
             marginBottom: 8,
@@ -337,7 +337,10 @@ export default function Card2ResultsModal({ data: incoming }) {
         {/* Chart */}
         <div style={{ flex: 1, minHeight: 0 }} onPointerDown={stopIfBrush}>
           <ResponsiveContainer width="100%" height="100%">
-            <LineChart data={rows} margin={{ top: 8, right: 12, bottom: 10, left: 2 }}>
+            <LineChart
+              data={rows}
+              margin={{ top: 8, right: 12, bottom: 10, left: 2 }}
+            >
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis
                 dataKey="date"
@@ -355,9 +358,15 @@ export default function Card2ResultsModal({ data: incoming }) {
                   value: "Tonnes",
                   angle: -90,
                   position: "insideLeft",
-                  style: { textAnchor: "middle" }
+                  style: { textAnchor: "middle" },
                 }}
-                contentStyle={{ borderRadius: 8, borderColor: "#e5e7eb", fontSize: 12 }}
+              />
+              <Tooltip
+                contentStyle={{
+                  borderRadius: 8,
+                  borderColor: "#e5e7eb",
+                  fontSize: 12,
+                }}
                 labelStyle={{ fontWeight: 700 }}
                 labelFormatter={(d) => d.replace(/-/g, "/")}
                 formatter={(value, name) => [value, name]}
@@ -420,7 +429,9 @@ function MenuItem({ label, checked, onChange, swatch }) {
         style={{ cursor: "pointer" }}
       />
       {swatch && (
-        <span style={{ width: 10, height: 10, background: swatch, borderRadius: 2 }} />
+        <span
+          style={{ width: 10, height: 10, background: swatch, borderRadius: 2 }}
+        />
       )}
       <span style={{ fontSize: 12 }}>{label}</span>
     </label>
